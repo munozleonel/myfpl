@@ -517,14 +517,30 @@
   td.sq-col-player .csub{display:block;font-size:10px;font-weight:400;color:#8a8672;font-family:'JetBrains Mono',monospace;}
   tbody tr.squad-row:nth-child(even) td.sq-col-pos,
   tbody tr.squad-row:nth-child(even) td.sq-col-player{background:#201f1a;}
-  td.sq-fx{min-width:52px;height:40px;padding:0;border-bottom:1px solid #2a2a24;border-right:1px solid #232320;cursor:pointer;position:relative;}
+  td.sq-fx{min-width:52px;height:46px;padding:0;border-bottom:1px solid #2a2a24;border-right:1px solid #232320;cursor:pointer;position:relative;}
   td.sq-fx:hover .pill{outline:1px solid var(--amber);outline-offset:-1px;}
   td.sq-fx .pill{
-    display:flex;align-items:center;justify-content:center;height:100%;width:100%;
-    font-size:11.5px;font-weight:700;letter-spacing:.02em;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;
+    font-size:11.5px;font-weight:700;letter-spacing:.02em;line-height:1.2;
+  }
+  td.sq-fx .pill .sq-opp{display:block;}
+  td.sq-fx .pill .sq-pts{
+    display:block;font-size:9.5px;font-weight:800;letter-spacing:0;
+    opacity:.72;font-family:'JetBrains Mono',monospace;font-style:normal;
+  }
+  td.sq-fx .pill .sq-pts.sq-captain{
+    opacity:1;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px;
+    color:#1a1a1a;font-size:10.5px;
+  }
+  .captain-tag{
+    position:absolute;top:1px;left:2px;
+    font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;
+    color:var(--amber);letter-spacing:.05em;z-index:1;
+    background:#1a1a14;border-radius:50%;width:11px;height:11px;line-height:11px;text-align:center;
   }
   td.sq-fx.home .pill{font-weight:800;}
   td.sq-fx.away .pill{font-weight:500;font-style:italic;}
+  td.sq-fx.away .pill .sq-pts{font-style:normal;}
   td.sq-fx.benched .pill{opacity:.28;filter:grayscale(70%);}
   td.sq-fx.benched::after{
     content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent,transparent 5px,rgba(0,0,0,.35) 5px,rgba(0,0,0,.35) 6px);pointer-events:none;
@@ -539,6 +555,29 @@
     background:#151511 !important;color:#8a8672;font-size:10px;letter-spacing:.08em;
     text-transform:uppercase;padding:5px 10px;border-right:none !important;
   }
+  tr.squad-total-row{border-top:2px solid var(--amber-dim);}
+  tr.squad-total-row td.sq-col-pos,
+  tr.squad-total-row td.sq-col-player{
+    background:#201810 !important;color:var(--amber);font-weight:700;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;
+  }
+  td.sq-total-cell{
+    text-align:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:13px;
+    color:var(--green);background:#151a15;border-bottom:1px solid #2a2a24;border-right:1px solid #232320;
+  }
+  td.sq-total-cell.partial{color:var(--amber);}
+
+  tr.squad-summary-row td.sq-col-pos,
+  tr.squad-summary-row td.sq-col-player{
+    background:#171712 !important;color:#a8a292;font-weight:600;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.03em;
+  }
+  td.sq-summary-cell{
+    text-align:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;
+    color:var(--paper);background:#171712;border-bottom:1px solid #2a2a24;letter-spacing:.03em;
+  }
+  tr.squad-summary-row:last-child td{border-bottom:2px solid var(--amber-dim);}
+
 
   /* ---------- Final mobile pass: picker table + squad fixture table ---------- */
   /* Placed last so it safely overrides the base rules above (same specificity, later wins). */
@@ -552,8 +591,12 @@
     th.sq-col-pos, td.sq-col-pos{width:34px;min-width:34px;padding:6px 4px;}
     th.sq-col-player, td.sq-col-player{left:34px;width:130px;min-width:130px;padding:6px 8px;font-size:11.5px;}
     td.sq-col-player .csub{font-size:9px;}
-    td.sq-fx{min-width:42px;height:36px;}
+    td.sq-fx{min-width:42px;height:40px;}
     td.sq-fx .pill{font-size:10px;}
+    td.sq-fx .pill .sq-pts{font-size:8.5px;}
+    td.sq-total-cell{font-size:11px;}
+    td.sq-summary-cell{font-size:11.5px;}
+    .captain-tag{width:9px;height:9px;line-height:9px;font-size:6.5px;}
     table.squad-table thead th{font-size:9px;padding:6px 3px;}
     table.squad-table thead th .gw-date{font-size:7.5px;}
     table.squad-table thead th .gw-start-count{font-size:7px;}
@@ -651,6 +694,18 @@
   }
   .pts-controls select:focus{border-color:var(--amber);}
   .pts-controls label{color:#ccc;font-size:12px;}
+  .pts-watch-toggle{
+    display:flex;align-items:center;gap:6px;cursor:pointer;
+    color:#a8a292;font-size:11.5px;letter-spacing:.03em;user-select:none;
+  }
+  .pts-watch-toggle input{accent-color:var(--amber);cursor:pointer;}
+  .pts-watch-toggle span{color:inherit;}
+  .pts-watch-toggle:has(input:checked) span{color:var(--amber);}
+  .pts-btn-ghost{
+    background:transparent;border:1px solid #3a3a32;color:#a8a292;
+    padding:7px 12px;font-size:10.5px;
+  }
+  .pts-btn-ghost:hover{border-color:#F8696B;color:#F8696B;background:transparent;}
   .pts-summary{margin-left:auto;font-size:11px;color:#8a8672;letter-spacing:.03em;}
   .pts-summary b{color:var(--paper);}
 
@@ -676,7 +731,16 @@
     position:sticky;z-index:2;background:var(--panel-2);
     border-bottom:1px solid #2a2a24;border-right:1px solid #232320;
   }
-  td.pts-col-player{left:0;width:170px;min-width:170px;padding:8px 10px;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;color:var(--paper);white-space:nowrap;}
+  td.pts-col-player{
+    left:0;width:170px;min-width:170px;padding:8px 10px;font-family:'Inter',sans-serif;
+    font-weight:600;font-size:12.5px;color:var(--paper);white-space:nowrap;
+    cursor:pointer;
+  }
+  td.pts-col-player:hover{color:var(--amber);}
+  td.pts-col-player .pts-watch-star{color:var(--amber);font-weight:800;margin-left:2px;}
+  tr.pts-row-watched td.pts-col-player,
+  tr.pts-row-watched td.pts-col-team,
+  tr.pts-row-watched td.pts-col-pos{background:#211a0c;}
   td.pts-col-team{left:170px;width:130px;min-width:130px;padding:8px 10px;font-size:11.5px;color:#a8a292;white-space:nowrap;}
   td.pts-col-pos{left:300px;width:44px;min-width:44px;text-align:center;border-right:2px solid var(--amber-dim);}
   tbody tr:nth-child(even) td.pts-col-player,
@@ -1015,11 +1079,17 @@
       <select id="ptsTeamFilter"><option value="">All clubs</option></select>
       <select id="ptsPosFilter">
         <option value="">All positions</option>
-        <option value="G">Goalkeepers</option>
+        <option value="GK">Goalkeepers</option>
         <option value="D">Defenders</option>
         <option value="M">Midfielders</option>
         <option value="F">Forwards</option>
       </select>
+      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">£
+        <select id="ptsPriceMin"></select>
+      </label>
+      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">to
+        <select id="ptsPriceMax"></select>
+      </label>
       <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From GW <select id="ptsFirstGW"></select></label>
       <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">To GW <select id="ptsLastGW"></select></label>
       <select id="ptsSortBy">
@@ -1029,6 +1099,10 @@
         <option value="value">Sort: Value</option>
         <option value="name">Sort: Player name</option>
       </select>
+      <label class="pts-watch-toggle" for="ptsWatchedOnly">
+        <input type="checkbox" id="ptsWatchedOnly"> <span>&#9733; Watched only</span>
+      </label>
+      <button type="button" class="pts-btn pts-btn-ghost" id="ptsClearWatchedBtn">Clear watched</button>
       <span class="pts-scale-legend">LOW <span class="pts-scale-bar"></span> HIGH</span>
       <span class="pts-summary" id="ptsSummary"></span>
     </div>
@@ -1228,6 +1302,34 @@ function computePriceBounds(){
 }
 computePriceBounds();
 
+/* ---------- Bridge to the Points Projections section (loaded further down
+   the page) — matches squad players to their FFS points-projection row by
+   normalized name + club, so the squad fixture table can show per-GW points
+   next to each opponent and total up the starting XI's projected score. ---------- */
+function normalizePlayerName(s){
+  if(!s) return '';
+  return String(s)
+    .replace(/Ø/g,'O').replace(/ø/g,'o')
+    .replace(/Đ/g,'D').replace(/đ/g,'d')
+    .replace(/Ł/g,'L').replace(/ł/g,'l')
+    .replace(/ß/g,'ss').replace(/ı/g,'i').replace(/İ/g,'i').replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g,'');
+}
+function ptsKeyFor(webName, teamAbbr){
+  return normalizePlayerName(webName) + '|' + teamAbbr;
+}
+// Returns the projected points for player p in gameweek gwNum (1-indexed),
+// or null if no points data has been loaded yet / no match was found.
+function getPlayerPointsForGW(p, gwNum){
+  const idx = window.PTS_INDEX;
+  if(!idx || gwNum < 1 || gwNum > 38) return null;
+  let row = idx.get(ptsKeyFor(p.web_name, p.team_short));
+  if(!row && p.full_name) row = idx.get(ptsKeyFor(p.full_name, p.team_short));
+  if(!row) return null;
+  return row.gw[gwNum - 1];
+}
 
 function createSquadPlanner(sfx){
   let squadIds = new Set();
@@ -1593,6 +1695,24 @@ function createSquadPlanner(sfx){
       if(p) byPos[p.element_type].push(p);
     });
 
+    // Captain per displayed gameweek = the STARTING player with the highest
+    // projected score that gameweek (their score counts twice in the total).
+    const squadPlayersList = [...squadIds].map(id => SQ_PLAYERS.find(pl => pl.id === id)).filter(Boolean);
+    const captainIdByGwIndex = gwNums.map(gwNum => {
+      let bestId = null, bestPts = -Infinity;
+      squadPlayersList.forEach(p => {
+        if(!isStarting(gwNum, p.id)) return;
+        const pts = getPlayerPointsForGW(p, gwNum);
+        if(pts != null && pts > bestPts){ bestPts = pts; bestId = p.id; }
+      });
+      return bestId;
+    });
+
+    // running total of projected points for the starting XI, per displayed gameweek
+    // (captain's score is added an extra time, matching real FPL scoring)
+    const gwPointTotals = gwNums.map(() => 0);
+    const gwPointCounts = gwNums.map(() => 0); // how many starters actually had a points figure
+
     const frag = document.createDocumentFragment();
     POS_ORDER.forEach(pos => {
       const group = byPos[pos];
@@ -1627,6 +1747,13 @@ function createSquadPlanner(sfx){
           const gwIdx = start - 1 + i; // 0-indexed into fixtures array
           const gwNum = start + i;
           const starting = isStarting(gwNum, p.id);
+          const pts = getPlayerPointsForGW(p, gwNum);
+          const isCaptain = starting && captainIdByGwIndex[i] === p.id;
+          if(starting && pts != null){
+            gwPointTotals[i] += pts;
+            gwPointCounts[i]++;
+            if(isCaptain) gwPointTotals[i] += pts; // captain's score counts twice
+          }
           const td = document.createElement('td');
           td.className = 'sq-fx' + (starting ? '' : ' benched');
           if(!team || gwIdx >= 38 || !team.fixtures[gwIdx]){
@@ -1638,13 +1765,23 @@ function createSquadPlanner(sfx){
             const rating = ratingFor(code, !isHome);
             const bg = colorForRating(rating);
             td.classList.add(isHome ? 'home' : 'away');
-            td.title = `${opp.toUpperCase()} ${isHome ? '(H)' : '(A)'} \u00b7 difficulty ${rating}/20 \u00b7 click to ${starting ? 'bench' : 'start'}`;
+            td.title = `${opp.toUpperCase()} ${isHome ? '(H)' : '(A)'} \u00b7 difficulty ${rating}/20` +
+              (pts != null ? ` \u00b7 ${pts.toFixed(2)} proj. pts` : '') +
+              (isCaptain ? ' \u00b7 CAPTAIN (counts twice)' : '') +
+              ` \u00b7 click to ${starting ? 'bench' : 'start'}`;
             const pill = document.createElement('div');
             pill.className = 'pill';
-            pill.textContent = opp;
             pill.style.background = bg;
             pill.style.color = '#1a1a1a';
+            pill.innerHTML = `<span class="sq-opp">${opp}</span>` +
+              (pts != null ? `<span class="sq-pts${isCaptain ? ' sq-captain' : ''}">${pts.toFixed(1)}</span>` : '');
             td.appendChild(pill);
+            if(isCaptain){
+              const capTag = document.createElement('span');
+              capTag.className = 'captain-tag';
+              capTag.textContent = 'C';
+              td.appendChild(capTag);
+            }
             if(!starting){
               const tag = document.createElement('span');
               tag.className = 'bench-tag';
@@ -1659,6 +1796,71 @@ function createSquadPlanner(sfx){
       });
     });
     body.appendChild(frag);
+
+    // Footer row: total projected points for the starting XI, per gameweek
+    const hasAnyPoints = gwPointCounts.some(c => c > 0);
+    const totalRow = document.createElement('tr');
+    totalRow.className = 'squad-total-row';
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'sq-col-pos';
+    tdLabel.textContent = '';
+    totalRow.appendChild(tdLabel);
+    const tdLabel2 = document.createElement('td');
+    tdLabel2.className = 'sq-col-player';
+    tdLabel2.textContent = 'Predicted XI points';
+    totalRow.appendChild(tdLabel2);
+    gwNums.forEach((gwNum, i) => {
+      const td = document.createElement('td');
+      td.className = 'sq-total-cell';
+      if(gwPointCounts[i] > 0){
+        td.textContent = gwPointTotals[i].toFixed(1);
+        const startCount = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSet().size;
+        if(gwPointCounts[i] < startCount){
+          td.title = `Projected total for the ${gwPointCounts[i]} starting player(s) with points data (of ${startCount} starters), captain\u2019s score counted twice \u2014 load Points Projections data above to cover the rest of the XI.`;
+          td.classList.add('partial');
+        } else {
+          td.title = `Projected total for all ${startCount} starting players this gameweek (captain\u2019s score counted twice).`;
+        }
+      } else {
+        td.textContent = '\u2014';
+        td.title = 'Load Points Projections data above (Manual upload or Automated) to see this total.';
+      }
+      totalRow.appendChild(td);
+    });
+    body.appendChild(totalRow);
+    if(!hasAnyPoints){
+      totalRow.title = 'Load Points Projections data above to see the starting XI\u2019s projected points here.';
+    }
+
+    // Summary rows: total projected points across the next 4 and next 6 displayed gameweeks
+    function buildRangeSummaryRow(label, rangeLen){
+      const span = gwNums.slice(0, rangeLen);
+      const countSum = gwPointCounts.slice(0, rangeLen).reduce((a,b) => a+b, 0);
+      const total = gwPointTotals.slice(0, rangeLen).reduce((a,b) => a+b, 0);
+      const tr = document.createElement('tr');
+      tr.className = 'squad-summary-row';
+      const td1 = document.createElement('td');
+      td1.className = 'sq-col-pos';
+      tr.appendChild(td1);
+      const td2 = document.createElement('td');
+      td2.className = 'sq-col-player';
+      td2.textContent = `${label} (GW${span[0]}\u2013GW${span[span.length-1]})`;
+      tr.appendChild(td2);
+      const tdVal = document.createElement('td');
+      tdVal.className = 'sq-summary-cell';
+      tdVal.colSpan = runLen;
+      if(countSum > 0){
+        tdVal.textContent = total.toFixed(1) + ' pts';
+        tdVal.title = `Sum of the predicted XI points shown above across GW${span[0]}\u2013GW${span[span.length-1]} (captain\u2019s score counted twice each gameweek).`;
+      } else {
+        tdVal.textContent = '\u2014';
+        tdVal.title = 'Load Points Projections data above to see this total.';
+      }
+      tr.appendChild(tdVal);
+      return tr;
+    }
+    body.appendChild(buildRangeSummaryRow('Next 4 GW total', Math.min(4, runLen)));
+    body.appendChild(buildRangeSummaryRow('Next 6 GW total', Math.min(6, runLen)));
 
     // fill in live starter counts per gameweek column
     gwNums.forEach(gwNum => {
@@ -1819,11 +2021,73 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
    ========================================================================== */
 (function(){
   const PTS_STORAGE_KEY = 'fplPointsProjections_v1';
-  const POS_FULL = {G:'GKP', D:'DEF', M:'MID', F:'FWD'};
+  const PTS_WATCHED_KEY = 'fplWatchedPlayers_v1';
+  const POS_FULL = {GK:'GKP', D:'DEF', M:'MID', F:'FWD'};
 
   let PTS_ROWS = [];         // [{name, team, pos, gw:[38 nums], total, price, value}]
   let PTS_META = null;       // {source, timestamp, count}
   let ptsSort = 'total';
+  let WATCHED = new Set();   // set of watch keys (normalized name + club) for "watched" players
+
+  /* ---- name/team matching (shared with the squad fixture tables) ---- */
+  function normalizePlayerName(s){
+    if(!s) return '';
+    return String(s)
+      .replace(/Ø/g,'O').replace(/ø/g,'o')
+      .replace(/Đ/g,'D').replace(/đ/g,'d')
+      .replace(/Ł/g,'L').replace(/ł/g,'l')
+      .replace(/ß/g,'ss').replace(/ı/g,'i').replace(/İ/g,'i').replace(/ğ/g,'g').replace(/Ğ/g,'g')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'');
+  }
+  const TEAM_ALIASES = {
+    ARS: ['arsenal'],
+    AVL: ['astonvilla','villa'],
+    BOU: ['bournemouth','afcbournemouth'],
+    BRE: ['brentford'],
+    BHA: ['brighton','brightonhovealbion','brightonandhovealbion'],
+    CHE: ['chelsea'],
+    COV: ['coventry','coventrycity'],
+    CRY: ['crystalpalace','palace'],
+    EVE: ['everton'],
+    FUL: ['fulham'],
+    HUL: ['hull','hullcity'],
+    IPS: ['ipswich','ipswichtown'],
+    LEE: ['leeds','leedsunited'],
+    LIV: ['liverpool'],
+    MCI: ['mancity','manchestercity'],
+    MUN: ['manutd','manchesterunited','manu'],
+    NEW: ['newcastle','newcastleunited'],
+    NFO: ['nottmforest','nottinghamforest','forest'],
+    SUN: ['sunderland'],
+    TOT: ['tottenham','spurs','tottenhamhotspur'],
+  };
+  const TEAM_TEXT_TO_ABBR = {};
+  Object.entries(TEAM_ALIASES).forEach(([abbr, aliases]) => {
+    aliases.forEach(a => { TEAM_TEXT_TO_ABBR[a] = abbr; });
+  });
+  function abbrFromTeamText(text){
+    const norm = String(text||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    return TEAM_TEXT_TO_ABBR[norm] || null;
+  }
+
+  // Rebuilds window.PTS_INDEX (name+club -> points row) and tells any already-
+  // rendered squad planners to re-render so they can pick up the new data.
+  function publishPtsIndex(){
+    const idx = new Map();
+    PTS_ROWS.forEach(row => {
+      const abbr = abbrFromTeamText(row.team);
+      if(!abbr) return;
+      idx.set(normalizePlayerName(row.name) + '|' + abbr, row);
+    });
+    window.PTS_INDEX = idx;
+    window.PTS_META = PTS_META;
+    if(window.PLANNER_INSTANCES){
+      window.PLANNER_INSTANCES.forEach(inst => inst.onDataRefresh && inst.onDataRefresh());
+    }
+  }
+
 
   const els = {
     tabs: document.querySelectorAll('.pts-tab'),
@@ -1840,9 +2104,13 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     search: document.getElementById('ptsSearch'),
     teamFilter: document.getElementById('ptsTeamFilter'),
     posFilter: document.getElementById('ptsPosFilter'),
+    priceMin: document.getElementById('ptsPriceMin'),
+    priceMax: document.getElementById('ptsPriceMax'),
     firstGW: document.getElementById('ptsFirstGW'),
     lastGW: document.getElementById('ptsLastGW'),
     sortBy: document.getElementById('ptsSortBy'),
+    watchedOnly: document.getElementById('ptsWatchedOnly'),
+    clearWatchedBtn: document.getElementById('ptsClearWatchedBtn'),
     summary: document.getElementById('ptsSummary'),
     tableScroll: document.getElementById('ptsTableScroll'),
     headRow: document.getElementById('ptsHeadRow'),
@@ -1895,6 +2163,32 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
         PTS_META = data.meta || null;
       }
     }catch(e){ console.warn('Points projections: could not load from localStorage', e); }
+  }
+
+  /* ---- watched players ---- */
+  function watchKeyFor(row){
+    const abbr = abbrFromTeamText(row.team);
+    return normalizePlayerName(row.name) + '|' + (abbr || row.team);
+  }
+  function saveWatched(){
+    if(!STORAGE_OK) return;
+    try{ localStorage.setItem(PTS_WATCHED_KEY, JSON.stringify([...WATCHED])); }
+    catch(e){ console.warn('Points projections: could not save watched players', e); }
+  }
+  function loadWatched(){
+    if(!STORAGE_OK) return;
+    try{
+      const raw = localStorage.getItem(PTS_WATCHED_KEY);
+      if(!raw) return;
+      const arr = JSON.parse(raw);
+      if(Array.isArray(arr)) WATCHED = new Set(arr);
+    }catch(e){ console.warn('Points projections: could not load watched players', e); }
+  }
+  function toggleWatch(row){
+    const key = watchKeyFor(row);
+    if(WATCHED.has(key)) WATCHED.delete(key); else WATCHED.add(key);
+    saveWatched();
+    renderPtsTable();
   }
 
   /* ---- parsing a workbook (shared by manual upload + automated fetch) ---- */
@@ -1966,6 +2260,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
           count: rows.length,
         };
         savePtsState();
+        publishPtsIndex();
         setStatus(els.manualStatus, `Loaded ${rows.length} players from ${file.name}.`, 'ok');
         renderPtsAll();
       }catch(err){
@@ -2044,6 +2339,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
           count: rows.length,
         };
         savePtsState();
+        publishPtsIndex();
         setStatus(els.autoStatus, `Loaded ${rows.length} players automatically.`, 'ok');
         renderPtsAll();
         lastErr = null;
@@ -2072,6 +2368,25 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     if(teams.includes(current)) els.teamFilter.value = current;
   }
 
+  const roundUpHalf = (n) => Math.ceil(n * 2) / 2;
+  const roundDownHalf = (n) => Math.floor(n * 2) / 2;
+  function populatePriceFilter(){
+    const prices = PTS_ROWS.map(r => r.price).filter(v => v != null && v > 0);
+    if(!prices.length) return;
+    const min = roundDownHalf(Math.min(...prices));
+    const max = roundUpHalf(Math.max(...prices));
+    const steps = [];
+    const stepCount = Math.round((max - min) / 0.5);
+    for(let i = 0; i <= stepCount; i++) steps.push(Math.round((min + i * 0.5) * 10) / 10);
+
+    const prevMin = els.priceMin.value ? parseFloat(els.priceMin.value) : null;
+    const prevMax = els.priceMax.value ? parseFloat(els.priceMax.value) : null;
+    els.priceMin.innerHTML = steps.map(v => `<option value="${v}">£${v.toFixed(1)}</option>`).join('');
+    els.priceMax.innerHTML = steps.map(v => `<option value="${v}">£${v.toFixed(1)}</option>`).join('');
+    els.priceMin.value = (prevMin !== null && steps.includes(prevMin)) ? prevMin : min;
+    els.priceMax.value = (prevMax !== null && steps.includes(prevMax)) ? prevMax : max;
+  }
+
   function ptsColor(t){
     // t: 0..1 normalized value -> dark panel base through to accent green
     const LOW = [32,31,26], HIGH = [0,217,122];
@@ -2085,9 +2400,15 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     const q = els.search.value.trim().toLowerCase();
     const team = els.teamFilter.value;
     const pos = els.posFilter.value;
+    const minPrice = els.priceMin.value ? parseFloat(els.priceMin.value) : null;
+    const maxPrice = els.priceMax.value ? parseFloat(els.priceMax.value) : null;
+    const watchedOnly = els.watchedOnly.checked;
     let rows = PTS_ROWS.filter(r => {
       if(team && r.team !== team) return false;
       if(pos && r.pos !== pos) return false;
+      if(minPrice != null && r.price != null && r.price < minPrice) return false;
+      if(maxPrice != null && r.price != null && r.price > maxPrice) return false;
+      if(watchedOnly && !WATCHED.has(watchKeyFor(r))) return false;
       if(q && !(r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))) return false;
       return true;
     });
@@ -2132,8 +2453,14 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
 
     const frag = document.createDocumentFragment();
     rows.forEach(r => {
+      const isWatched = WATCHED.has(watchKeyFor(r));
       const tr = document.createElement('tr');
-      const tdP = document.createElement('td'); tdP.className='pts-col-player'; tdP.textContent = r.name; tr.appendChild(tdP);
+      if(isWatched) tr.classList.add('pts-row-watched');
+      const tdP = document.createElement('td'); tdP.className='pts-col-player';
+      tdP.innerHTML = r.name + (isWatched ? ' <span class="pts-watch-star">&#9733;</span>' : '');
+      tdP.title = isWatched ? 'Click to un-watch ' + r.name : 'Click to watch ' + r.name;
+      tdP.addEventListener('click', () => toggleWatch(r));
+      tr.appendChild(tdP);
       const tdT = document.createElement('td'); tdT.className='pts-col-team'; tdT.textContent = r.team; tr.appendChild(tdT);
       const tdPos = document.createElement('td'); tdPos.className='pts-col-pos';
       tdPos.innerHTML = `<span class="pos-pill pos-${POS_FULL[r.pos]||''}">${r.pos}</span>`;
@@ -2162,7 +2489,10 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     els.body.appendChild(frag);
 
     els.summary.innerHTML = `<b>${rows.length}</b> players shown &middot; GW${lo}&ndash;GW${hi}` +
+      (WATCHED.size ? ` &middot; <b>${WATCHED.size}</b> watched` : '') +
       (PTS_META ? ` &middot; ${PTS_META.source} &middot; ${PTS_META.timestamp}` : '');
+    els.clearWatchedBtn.textContent = WATCHED.size ? `Clear watched (${WATCHED.size})` : 'Clear watched';
+    els.clearWatchedBtn.disabled = WATCHED.size === 0;
   }
 
   function renderPtsAll(){
@@ -2172,17 +2502,37 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     els.empty.style.display = hasData ? 'none' : 'block';
     if(!hasData) return;
     populateTeamFilter();
+    populatePriceFilter();
     renderPtsTable();
   }
 
+  els.priceMin.addEventListener('change', () => {
+    if(parseFloat(els.priceMin.value) > parseFloat(els.priceMax.value)) els.priceMax.value = els.priceMin.value;
+    renderPtsTable();
+  });
+  els.priceMax.addEventListener('change', () => {
+    if(parseFloat(els.priceMax.value) < parseFloat(els.priceMin.value)) els.priceMin.value = els.priceMax.value;
+    renderPtsTable();
+  });
+  els.watchedOnly.addEventListener('change', renderPtsTable);
+  els.clearWatchedBtn.addEventListener('click', () => {
+    if(WATCHED.size === 0) return;
+    if(!confirm(`Clear all ${WATCHED.size} watched player(s)? This cannot be undone.`)) return;
+    WATCHED.clear();
+    saveWatched();
+    els.watchedOnly.checked = false;
+    renderPtsTable();
+  });
   [els.search, els.teamFilter, els.posFilter, els.firstGW, els.lastGW, els.sortBy].forEach(el => {
     el.addEventListener('input', renderPtsTable);
     el.addEventListener('change', renderPtsTable);
   });
 
   loadPtsState();
+  loadWatched();
   if(PTS_ROWS.length){
     setStatus(els.manualStatus, `Loaded ${PTS_ROWS.length} players from a previous session (${PTS_META ? PTS_META.source : 'saved data'}).`, 'ok');
+    publishPtsIndex();
   }
   renderPtsAll();
 })();

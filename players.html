@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPL Players · 2026/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE7D9;
+    --ink:#141414;
+    --ink-soft:#4a4632;
+    --amber:#FFB000;
+    --amber-dim:#8a6300;
+    --green:#00d97a;
+    --red:#F8696B;
+    --rule:#c9c0a6;
+    --panel:#0e0e0c;
+    --panel-2:#1a1a16;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--panel);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(255,176,0,0.06), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(0,217,122,0.05), transparent 45%);
+  }
+
+  /* ---------- Site nav ---------- */
+  .site-nav{
+    max-width:1400px;margin:0 auto;padding:14px 20px 0;
+    display:flex;gap:8px;font-family:'JetBrains Mono',monospace;
+  }
+  .site-nav a{
+    text-decoration:none;
+    font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:#a8a292;
+    padding:8px 16px;
+    border:1px solid #3a3a32;
+    border-bottom:none;
+    border-radius:3px 3px 0 0;
+    background:var(--panel-2);
+  }
+  .site-nav a.active{
+    color:var(--amber);
+    background:#151511;
+    border-color:var(--amber-dim);
+  }
+  .site-nav a:hover{color:var(--paper);}
+
+  /* ---------- Header / masthead ---------- */
+  .masthead{
+    padding:28px 20px 18px;
+    border-bottom:3px double var(--amber-dim);
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+  }
+  .masthead-inner{max-width:1400px;margin:0 auto;}
+  .eyebrow{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--green);margin-bottom:10px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 8px var(--green);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:.25;}
+  }
+  h1{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+    font-size:clamp(28px,5vw,52px);
+    letter-spacing:-0.01em;
+    margin:0 0 6px;
+    color:var(--paper);
+    text-transform:uppercase;
+  }
+  h1 span{color:var(--amber);}
+  .sub{
+    font-size:14px;color:#a8a292;max-width:680px;line-height:1.5;
+    font-family:'Inter',sans-serif;
+  }
+  .tape{
+    margin-top:18px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--amber-dim);
+    letter-spacing:.08em;
+    border-top:1px solid #2a2a24;
+    padding-top:10px;
+    display:flex;flex-wrap:wrap;gap:6px 18px;
+    align-items:center;
+  }
+  .tape b{color:var(--amber);font-weight:700;}
+  .refresh-btn{
+    background:var(--panel-2);
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.05em;
+    padding:6px 12px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .refresh-btn:hover{border-color:var(--amber);background:#201f19;}
+  .refresh-btn:disabled{opacity:.5;cursor:wait;}
+  .refresh-status{font-size:11px;letter-spacing:.03em;}
+  .refresh-status.ok{color:var(--green);}
+  .refresh-status.err{color:#F8696B;}
+
+  /* ---------- Controls ---------- */
+  .controls{
+    max-width:1400px;margin:18px auto 0;padding:0 20px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .search{
+    background:var(--panel-2);
+    border:1px solid #3a3a32;
+    color:var(--paper);
+    padding:9px 12px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    border-radius:2px;
+    width:220px;
+    outline:none;
+  }
+  .search::placeholder{color:#6b6858;}
+  .search:focus{border-color:var(--amber);}
+  select{
+    background:var(--panel-2);
+    border:1px solid #3a3a32;
+    color:var(--paper);
+    padding:8px 10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    border-radius:2px;
+    outline:none;
+  }
+  select:focus{border-color:var(--amber);}
+  .count{
+    margin-left:auto;
+    font-size:11px;color:#8a8672;letter-spacing:.05em;
+  }
+
+  /* ---------- Table wrap ---------- */
+  .table-wrap{
+    max-width:1400px;margin:16px auto 60px;
+    padding:0 20px 20px;
+  }
+  .grid-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border:1px solid #3a3a32;
+    background:var(--panel-2);
+    border-radius:3px;
+    max-height:74vh;
+    overflow-y:auto;
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    font-family:'JetBrains Mono',monospace;
+  }
+  thead th{
+    position:sticky;top:0;z-index:3;
+    background:#151511;
+    color:#c9c4b2;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.05em;
+    padding:10px 8px;
+    border-bottom:2px solid var(--amber-dim);
+    text-align:right;
+    white-space:nowrap;
+    cursor:pointer;
+    user-select:none;
+  }
+  thead th:hover{color:var(--amber);}
+  thead th.col-player, thead th.col-team{text-align:left;}
+  thead th .arrow{font-size:9px;color:var(--amber);margin-left:3px;}
+
+  tbody td{
+    padding:9px 8px;
+    border-bottom:1px solid #2a2a24;
+    font-size:12.5px;
+    text-align:right;
+    white-space:nowrap;
+  }
+  tbody tr:nth-child(even){background:#161612;}
+  tbody tr:hover{background:#221f16;}
+  tbody tr.row-hidden{display:none;}
+
+  td.col-player{
+    text-align:left;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    color:var(--paper);
+  }
+  td.col-player .full{
+    display:block;font-size:10.5px;font-weight:400;color:#8a8672;
+    font-family:'JetBrains Mono',monospace;
+  }
+  td.col-team{
+    text-align:left;
+    font-weight:700;
+    letter-spacing:.03em;
+  }
+  .crest{
+    display:inline-block;width:8px;height:8px;border-radius:1px;margin-right:6px;
+  }
+  .pos-pill{
+    display:inline-block;
+    font-size:10px;font-weight:700;
+    padding:2px 6px;border-radius:2px;
+    letter-spacing:.04em;
+  }
+  .pos-GKP{background:#4a3a00;color:#ffcf5c;}
+  .pos-DEF{background:#0d3a24;color:#5fe3a3;}
+  .pos-MID{background:#0d2a3a;color:#6cc6ff;}
+  .pos-FWD{background:#3a0d14;color:#ff8a8a;}
+
+  .status-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;
+    vertical-align:middle;
+  }
+  .status-a{background:var(--green);}
+  .status-d{background:var(--amber);}
+  .status-i,.status-s,.status-u,.status-n{background:var(--red);}
+
+  td.num{color:#c9c4b2;}
+  td.price{color:var(--amber);font-weight:700;}
+  td.points{color:var(--paper);font-weight:700;}
+
+  /* ---------- States ---------- */
+  .state-box{
+    max-width:1400px;margin:60px auto;padding:0 20px;
+    font-family:'JetBrains Mono',monospace;
+    text-align:center;color:#a8a292;
+  }
+  .state-box .big{font-size:15px;color:var(--paper);margin-bottom:10px;}
+  .state-box .small{font-size:12px;color:#8a8672;line-height:1.6;max-width:520px;margin:0 auto;}
+  .spinner{
+    width:26px;height:26px;margin:0 auto 18px;
+    border:3px solid #3a3a32;border-top-color:var(--amber);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .retry-btn{
+    margin-top:16px;
+    background:var(--panel-2);
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    padding:9px 18px;
+    border-radius:2px;
+    cursor:pointer;
+    letter-spacing:.05em;
+  }
+  .retry-btn:hover{border-color:var(--amber);}
+
+  /* Footer note */
+  .footnote{
+    max-width:1400px;margin:0 auto 60px;padding:0 20px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:#6b6858;line-height:1.7;
+  }
+
+  ::-webkit-scrollbar{height:10px;width:10px;}
+  ::-webkit-scrollbar-track{background:var(--panel);}
+  ::-webkit-scrollbar-thumb{background:#3a3a32;border-radius:5px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--amber-dim);}
+
+  @media (max-width:640px){
+    .site-nav{padding:10px 14px 0;}
+    .site-nav a{padding:7px 12px;font-size:10.5px;}
+    .masthead{padding:20px 14px 14px;}
+    h1{font-size:26px;}
+    .sub{font-size:13px;}
+    .tape{gap:8px 12px;}
+    .controls{padding:0 14px;gap:8px;margin-top:14px;}
+    .search{width:100%;}
+    select{flex:1 1 auto;min-width:0;}
+    .count{width:100%;margin-left:0;text-align:left;}
+    .table-wrap{padding:0 14px 20px;margin-top:12px;}
+    .footnote{padding:0 14px;}
+    thead th{padding:8px 6px;font-size:10px;}
+    tbody td{padding:7px 6px;font-size:11.5px;}
+    .refresh-btn{font-size:10px;padding:6px 10px;}
+    .refresh-status{width:100%;font-size:10.5px;}
+  }
+
+  @media (max-width:420px){
+    h1{font-size:21px;}
+    .eyebrow{font-size:9.5px;letter-spacing:.12em;}
+    .sub{font-size:12.5px;}
+    thead th{font-size:9.5px;padding:7px 5px;}
+    tbody td{font-size:11px;padding:6px 5px;}
+    td.col-player .full{font-size:9px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html">Fixtures</a>
+  <a href="players.html" class="active">Players</a>
+</nav>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow"><span class="dot"></span>PLAYER DATA · SOURCED FROM FPL</div>
+    <h1>FPL Player <span>Database</span></h1>
+    <p class="sub">Every player registered to a 2026/27 Premier League squad — current club, position and price. Gameweek 1 doesn't kick off until <b style="color:var(--paper)">21 Aug 2026</b>, so FPL hasn't reset the points/stats columns yet — those still show each player's final tally from last season until a ball is kicked. Search a name, filter by club or position, and tap any column to sort.</p>
+    <div class="tape" id="tape">
+      <span><b>SNAPSHOT</b> <span id="tapeStatus">26 Jul 2026</span></span>
+      <button id="refreshBtn" class="refresh-btn">&#8635; Refresh live data</button>
+      <span id="refreshStatus" class="refresh-status"></span>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <input class="search" id="search" type="text" placeholder="&gt; search player_" autocomplete="off">
+  <select id="teamFilter"><option value="">All clubs</option></select>
+  <select id="posFilter">
+    <option value="">All positions</option>
+    <option value="1">Goalkeepers</option>
+    <option value="2">Defenders</option>
+    <option value="3">Midfielders</option>
+    <option value="4">Forwards</option>
+  </select>
+  <span class="count" id="count"></span>
+</div>
+
+<div class="table-wrap">
+  <div class="grid-scroll" id="gridWrap">
+    <table id="grid">
+      <thead>
+        <tr id="headRow">
+          <th class="col-player" data-key="web_name">Player</th>
+          <th class="col-team" data-key="team_name">Club</th>
+          <th data-key="element_type">Pos</th>
+          <th data-key="now_cost">Price</th>
+          <th data-key="total_points">Pts <span style="opacity:.5">'25/26</span></th>
+          <th data-key="points_per_game">PPG <span style="opacity:.5">'25/26</span></th>
+          <th data-key="form">Form</th>
+          <th data-key="selected_by_percent">Sel %</th>
+          <th data-key="goals_scored">G <span style="opacity:.5">'25/26</span></th>
+          <th data-key="assists">A <span style="opacity:.5">'25/26</span></th>
+          <th data-key="clean_sheets">CS <span style="opacity:.5">'25/26</span></th>
+          <th data-key="minutes">Mins <span style="opacity:.5">'25/26</span></th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footnote">
+  Player data is embedded directly in this file as a point-in-time snapshot (see date above) — no internet connection needed to browse it. Rosters, clubs and prices are current for 2026/27. Columns marked <b style="color:var(--amber-dim)">'25/26</b> show each player's final stats from last season, because FPL doesn't zero them out until Gameweek 1 actually kicks off (21 Aug 2026) — that's an FPL platform behaviour, not stale data on this end. Prices are in £m. Status dot: green = available, amber = doubtful, red = injured/suspended/unavailable. Ask me to refresh this file with a newer snapshot any time.
+</div>
+
+<script>
+// Team colours reused from the fixture planner for a consistent look.
+const TEAM_COLORS = {"ARS":"#EF0107","AVL":"#670E36","BOU":"#B50E12","BRE":"#E2231A","BHA":"#0057B8","CHE":"#034694","COV":"#78D0F2","CRY":"#1B458F","EVE":"#003399","FUL":"#111111","HUL":"#F18A00","IPS":"#1D4C9B","LEE":"#FFCD00","LIV":"#C8102E","MCI":"#6CABDD","MUN":"#DA020E","NEW":"#3A3A3C","NFO":"#DD0000","SUN":"#EB172B","TOT":"#132257"};
+
+// Embedded snapshot of FPL bootstrap-static data (26 Jul 2026, evening) — current 2026/27 rosters & prices.
+// Columns: [id, web_name, full_name, team_short, team_name, pos_short, now_cost, total_points, points_per_game, form, selected_by_percent, goals_scored, assists, clean_sheets, minutes, status]
+const PLAYERS_RAW = [[1,"Raya","David Raya Mart\u00edn","ARS","Arsenal","GKP",6.0,162,4.4,0.0,29.8,0,0,19,3330,"a"],[2,"Arrizabalaga","Kepa Arrizabalaga Revuelta","ARS","Arsenal","GKP",5.0,2,2.0,0.0,0.2,0,0,0,90,"a"],[3,"Meslier","Illan Meslier","ARS","Arsenal","GKP",5.0,0,0.0,0.0,0.1,11,0,0,0,"a"],[4,"Gabriel","Gabriel dos Santos Magalh\u00e3es","ARS","Arsenal","DEF",8.0,209,6.5,0.0,25.3,3,5,18,2750,"a"],[5,"J.Timber","Jurri\u00ebn Timber","ARS","Arsenal","DEF",6.5,149,5.0,0.0,0.7,3,6,13,2452,"i"],[6,"Saliba","William Saliba","ARS","Arsenal","DEF",6.0,137,4.4,0.0,0.5,1,0,15,2614,"i"],[7,"Lewis-Skelly","Myles Lewis-Skelly","ARS","Arsenal","MID",5.5,29,1.4,0.0,0.3,0,0,2,697,"a"],[8,"Calafiori","Riccardo Calafiori","ARS","Arsenal","DEF",5.5,109,4.2,0.0,12.6,1,2,13,1697,"a"],[9,"Hincapie","Piero Hincapi\u00e9","ARS","Arsenal","DEF",5.5,87,3.5,0.0,5.5,1,2,5,1787,"a"],[10,"White","Benjamin White","ARS","Arsenal","DEF",5.5,45,3.8,0.0,0.0,0,1,5,699,"i"],[11,"Mosquera","Cristhian Mosquera","ARS","Arsenal","DEF",5.5,40,2.0,0.0,16.5,0,0,3,986,"a"],[12,"Saka","Bukayo Saka","ARS","Arsenal","MID",9.5,157,5.1,0.0,11.0,7,10,12,2218,"a"],[13,"Rice","Declan Rice","ARS","Arsenal","MID",7.5,184,5.1,0.0,22.1,4,9,18,3093,"a"],[14,"Eze","Eberechi Eze","ARS","Arsenal","MID",6.5,113,3.4,0.0,3.2,7,3,11,1885,"a"],[15,"\u00d8degaard","Martin \u00d8degaard","ARS","Arsenal","MID",6.5,74,3.1,0.0,2.9,1,7,6,1363,"a"],[16,"Madueke","Noni Madueke","ARS","Arsenal","MID",6.5,72,2.8,0.0,0.4,3,1,8,1205,"a"],[17,"Merino","Mikel Merino Zaz\u00f3n","ARS","Arsenal","MID",6.0,67,3.0,0.0,1.2,4,3,4,1024,"a"],[18,"Martinelli","Gabriel Martinelli Silva","ARS","Arsenal","MID",6.5,57,1.9,0.0,0.3,1,5,2,1065,"a"],[19,"Zubimendi","Mart\u00edn Zubimendi Ib\u00e1\u00f1ez","ARS","Arsenal","MID",5.5,133,3.5,0.0,1.4,5,1,16,2991,"a"],[20,"Dowman","Max Dowman","ARS","Arsenal","MID",5.5,16,2.7,0.0,0.2,1,1,1,152,"a"],[21,"N\u00f8rgaard","Christian N\u00f8rgaard","ARS","Arsenal","MID",5.0,7,1.0,0.0,0.1,0,0,0,101,"a"],[22,"Nwaneri","Ethan Nwaneri","ARS","Arsenal","MID",5.5,8,1.3,0.0,0.0,0,0,1,165,"a"],[23,"F\u00e1bio Vieira","F\u00e1bio Ferreira Vieira","ARS","Arsenal","MID",5.5,0,0.0,0.0,0.0,0,0,0,0,"a"],[24,"Nelson","Reiss Nelson","ARS","Arsenal","MID",5.5,13,1.3,0.0,0.0,0,1,0,118,"a"],[25,"Gy\u00f6keres","Viktor Gy\u00f6keres","ARS","Arsenal","FWD",7.5,128,3.6,0.0,14.1,14,1,12,2217,"a"],[26,"Havertz","Kai Havertz","ARS","Arsenal","FWD",7.5,36,3.0,0.0,4.4,2,3,4,577,"a"],[27,"G.Jesus","Gabriel Fernando de Jesus","ARS","Arsenal","FWD",6.0,24,1.7,0.0,0.3,3,0,1,418,"a"],[557,"Tzolis","Christos Tzolis","ARS","Arsenal","MID",6.5,0,0.0,0.0,1.1,0,0,0,0,"a"],[28,"Martinez","Emiliano Mart\u00ednez Romero","AVL","Aston Villa","GKP",5.0,120,3.8,0.0,4.2,0,1,7,2835,"a"],[29,"M.Bizot","Marco Bizot","AVL","Aston Villa","GKP",4.5,16,2.3,0.0,0.1,0,0,1,585,"a"],[30,"Digne","Lucas Digne","AVL","Aston Villa","DEF",4.5,97,3.1,0.0,1.4,0,7,7,1842,"a"],[31,"Konsa","Ezri Konsa Ngoyo","AVL","Aston Villa","DEF",4.5,100,2.9,0.0,19.1,0,1,9,3035,"a"],[32,"Cash","Matty Cash","AVL","Aston Villa","DEF",4.5,117,3.3,0.0,8.3,3,3,8,3016,"a"],[33,"Mings","Tyrone Mings","AVL","Aston Villa","DEF",4.5,50,2.9,0.0,0.2,0,1,3,1322,"a"],[34,"Pau","Pau Torres","AVL","Aston Villa","DEF",4.5,64,3.0,0.0,0.2,0,2,5,1673,"a"],[35,"Bogarde","Lamare Bogarde","AVL","Aston Villa","MID",5.0,40,1.4,0.0,0.1,0,0,2,1042,"a"],[36,"Maatsen","Ian Maatsen","AVL","Aston Villa","DEF",4.5,54,1.8,0.0,0.6,0,1,2,1590,"a"],[37,"Lindel\u00f6f","Victor Lindel\u00f6f","AVL","Aston Villa","DEF",4.5,29,1.7,0.0,0.2,0,1,1,942,"a"],[38,"A.Garc\u00eda","Andr\u00e9s Garc\u00eda","AVL","Aston Villa","DEF",4.0,5,0.8,0.0,1.5,0,0,0,83,"a"],[39,"Nedeljkovic","Kosta Nedeljkovic","AVL","Aston Villa","DEF",4.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[41,"Buend\u00eda","Emiliano Buend\u00eda Stati","AVL","Aston Villa","MID",6.0,102,2.8,0.0,0.8,6,2,3,1753,"a"],[42,"Guessand","Evann Guessand","AVL","Aston Villa","MID",5.5,44,2.1,0.0,0.1,1,3,2,909,"a"],[44,"Bailey","Leon Bailey","AVL","Aston Villa","MID",5.5,21,1.6,0.0,0.1,0,2,0,450,"a"],[45,"McGinn","John McGinn","AVL","Aston Villa","MID",5.5,103,3.4,0.0,2.7,5,4,8,2136,"a"],[46,"Barkley","Ross Barkley","AVL","Aston Villa","MID",5.0,56,2.7,0.0,0.2,3,2,1,844,"a"],[47,"Kamara","Boubacar Kamara","AVL","Aston Villa","MID",5.0,61,3.4,0.0,0.1,1,3,5,1410,"d"],[48,"Onana","Amadou Onana","AVL","Aston Villa","MID",5.0,76,3.0,0.0,0.0,2,0,6,1755,"i"],[49,"Iling Jr","Samuel Iling-Junior","AVL","Aston Villa","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[50,"Burrowes","Bradley Burrowes","AVL","Aston Villa","MID",4.5,1,1.0,0.0,1.2,0,0,0,16,"a"],[51,"George Hemmings","George Hemmings","AVL","Aston Villa","MID",4.5,2,1.0,0.0,0.2,0,0,0,25,"a"],[52,"Alysson","Alysson Edward Franco da Rocha dos Santos","AVL","Aston Villa","MID",5.0,3,1.0,0.0,0.1,0,0,0,47,"a"],[53,"Manzambi","Johan Manzambi","AVL","Aston Villa","MID",6.0,0,0.0,0.0,3.3,0,0,0,0,"a"],[54,"Gomes","Joao Gomes","AVL","Aston Villa","MID",5.5,85,3.0,0.0,0.3,1,1,4,2207,"a"],[55,"Watkins","Ollie Watkins","AVL","Aston Villa","FWD",8.0,167,4.5,0.0,12.6,16,4,9,2833,"a"],[56,"Abraham","Tammy Abraham","AVL","Aston Villa","FWD",5.5,23,1.9,0.0,0.0,2,0,0,278,"i"],[160,"Garnacho","Alejandro Garnacho Ferreyra","AVL","Aston Villa","MID",6.0,56,2.3,0.0,1.1,1,4,4,1261,"a"],[57,"Petrovi\u0107","\u0110or\u0111e Petrovi\u0107","BOU","Bournemouth","GKP",4.5,124,3.3,0.0,3.5,0,0,11,3420,"a"],[58,"Forster","Fraser Forster","BOU","Bournemouth","GKP",4.0,0,0.0,0.0,3.2,0,0,0,0,"a"],[59,"Dennis","Will Dennis","BOU","Bournemouth","GKP",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[60,"Hill","James Hill","BOU","Bournemouth","DEF",5.5,110,3.8,0.0,1.5,0,3,8,2102,"a"],[61,"Truffert","Adrien Truffert","BOU","Bournemouth","DEF",5.5,165,4.3,0.0,4.7,1,6,11,3378,"a"],[62,"Diakit\u00e9","Bafod\u00e9 Diakit\u00e9","BOU","Bournemouth","DEF",5.0,46,2.6,0.0,0.2,0,0,4,1275,"a"],[63,"Milosavljevi\u0107","Veljko Milosavljevic","BOU","Bournemouth","DEF",5.0,19,2.7,0.0,0.1,0,0,1,367,"a"],[64,"Smith","Adam Smith","BOU","Bournemouth","DEF",4.5,58,2.6,0.0,0.1,0,2,6,1073,"a"],[65,"J.Araujo","Juli\u00e1n Araujo Z\u00fa\u00f1iga","BOU","Bournemouth","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[66,"Soler","Julio Soler Barreto","BOU","Bournemouth","DEF",4.0,3,1.0,0.0,0.6,0,0,0,34,"a"],[67,"Rayan","Rayan Vitor Simpl\u00edcio Rocha","BOU","Bournemouth","MID",6.5,67,4.5,0.0,3.6,5,2,6,1110,"a"],[68,"Tavernier","Marcus Tavernier","BOU","Bournemouth","MID",6.0,137,4.0,0.0,1.5,7,4,11,2732,"a"],[69,"Scott","Alex Scott","BOU","Bournemouth","MID",6.0,136,3.7,0.0,1.6,3,2,11,2848,"a"],[70,"Kluivert","Justin Kluivert","BOU","Bournemouth","MID",6.0,41,2.0,0.0,0.8,2,0,4,945,"a"],[71,"Cook","Lewis Cook","BOU","Bournemouth","MID",5.0,40,2.2,0.0,0.1,0,1,1,872,"a"],[72,"Gannon-Doak","Ben Gannon-Doak","BOU","Bournemouth","MID",5.0,11,1.4,0.0,0.2,0,1,0,105,"a"],[73,"Adams","Tyler Adams","BOU","Bournemouth","MID",5.0,77,3.1,0.0,0.7,2,2,7,1769,"a"],[74,"Brooks","David Brooks","BOU","Bournemouth","MID",5.0,59,1.9,0.0,0.2,1,3,5,1188,"a"],[75,"Christie","Ryan Christie","BOU","Bournemouth","MID",5.0,47,1.8,0.0,0.1,2,1,3,978,"s"],[76,"T\u00f3th.A","Alex T\u00f3th","BOU","Bournemouth","MID",5.0,8,0.9,0.0,0.0,0,0,0,135,"a"],[77,"Adli","Amine Adli","BOU","Bournemouth","MID",5.0,67,2.2,0.0,0.2,3,2,3,1074,"a"],[78,"Kroupi.Jr","Junior Kroupi","BOU","Bournemouth","MID",7.5,113,3.4,0.0,14.0,13,0,10,1663,"a"],[79,"Evanilson","Francisco Evanilson de Lima Barbosa","BOU","Bournemouth","FWD",6.0,115,3.2,0.0,1.9,6,7,11,2741,"a"],[80,"Enes \u00dcnal","Enes \u00dcnal","BOU","Bournemouth","FWD",5.5,27,1.2,0.0,0.2,1,0,0,214,"a"],[81,"Rodr\u00edguez","\u00c1lvaro Rodr\u00edguez","BOU","Bournemouth","FWD",6.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[82,"Kelleher","Caoimh\u00edn Kelleher","BRE","Brentford","GKP",5.0,143,3.9,0.0,5.6,0,0,10,3330,"a"],[83,"Valdimarsson","H\u00e1kon Rafn Valdimarsson","BRE","Brentford","GKP",4.5,1,1.0,0.0,0.1,0,0,0,90,"a"],[84,"Collins","Nathan Collins","BRE","Brentford","DEF",5.5,129,3.7,0.0,2.1,1,2,9,2971,"a"],[85,"Van den Berg","Sepp van den Berg","BRE","Brentford","DEF",5.0,113,3.5,0.0,0.7,0,3,8,2761,"a"],[86,"Lewis-Potter","Keane Lewis-Potter","BRE","Brentford","MID",5.5,115,3.2,0.0,0.6,3,4,9,1960,"a"],[87,"Ajer","Kristoffer Ajer","BRE","Brentford","DEF",4.5,76,2.8,0.0,0.5,0,2,5,1805,"a"],[88,"Kayode","Michael Kayode","BRE","Brentford","DEF",4.5,113,3.1,0.0,5.1,1,2,10,3258,"a"],[89,"Henry","Rico Henry","BRE","Brentford","DEF",4.5,52,2.1,0.0,0.2,0,2,4,1322,"a"],[90,"Hickey","Aaron Hickey","BRE","Brentford","DEF",4.5,37,1.8,0.0,0.1,0,0,2,679,"a"],[91,"Pinnock","Ethan Pinnock","BRE","Brentford","DEF",4.5,14,3.5,0.0,0.1,0,0,1,318,"a"],[92,"Ji-soo","Kim Ji-soo","BRE","Brentford","DEF",4.5,0,0.0,0.0,0.0,0,0,0,0,"a"],[93,"Schuster","Jannik Schuster","BRE","Brentford","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[94,"Schade","Kevin Schade","BRE","Brentford","MID",6.0,125,3.6,0.0,2.2,8,5,11,2744,"a"],[95,"O.Dango","Dango Ouattara","BRE","Brentford","MID",6.5,136,4.2,0.0,1.5,7,8,6,2271,"a"],[96,"Damsgaard","Mikkel Damsgaard","BRE","Brentford","MID",5.5,113,3.4,0.0,0.7,4,4,5,2046,"a"],[97,"Jensen","Mathias Jensen","BRE","Brentford","MID",5.5,98,2.7,0.0,0.1,3,2,9,2239,"a"],[98,"Janelt","Vitaly Janelt","BRE","Brentford","MID",5.0,74,3.0,0.0,0.1,1,4,5,1434,"a"],[99,"Milambo","Antoni Milambo","BRE","Brentford","MID",5.0,1,1.0,0.0,0.0,0,0,0,45,"d"],[100,"Carvalho","F\u00e1bio Freitas Gouveia Carvalho","BRE","Brentford","MID",5.0,13,2.2,0.0,0.0,1,0,0,100,"i"],[101,"Henderson","Jordan Henderson","BRE","Brentford","MID",5.0,76,2.4,0.0,0.0,1,3,6,1911,"d"],[102,"Yarmoliuk","Yehor Yarmoliuk","BRE","Brentford","MID",5.0,104,2.8,0.0,1.4,1,3,8,2652,"a"],[103,"Dasilva","Josh Dasilva","BRE","Brentford","MID",5.0,2,1.0,0.0,0.0,0,0,0,2,"a"],[105,"Anthony","Jaidon Anthony","BRE","Brentford","MID",6.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[106,"Thiago","Igor Thiago Nascimento Rodrigues","BRE","Brentford","FWD",8.0,181,4.8,0.0,17.0,22,1,10,3282,"a"],[107,"Furo","Kaye Furo","BRE","Brentford","FWD",4.5,1,1.0,0.0,0.9,0,0,0,1,"a"],[108,"Wilson","Callum Wilson","BRE","Brentford","FWD",5.5,0,0.0,0.0,0.4,0,0,0,0,"a"],[109,"Verbruggen","Bart Verbruggen","BHA","Brighton","GKP",4.5,130,3.4,0.0,16.7,0,0,10,3420,"a"],[110,"Rushworth","Carl Rushworth","BHA","Brighton","GKP",4.5,0,0.0,0.0,0.4,0,0,0,0,"a"],[111,"Steele","Jason Steele","BHA","Brighton","GKP",4.0,0,0.0,0.0,5.5,0,0,0,0,"a"],[113,"F.Kad\u0131o\u011flu","Ferdi Kad\u0131o\u011flu","BHA","Brighton","DEF",4.5,118,3.2,0.0,3.1,1,2,10,3130,"a"],[114,"Boscagli","Olivier Boscagli","BHA","Brighton","DEF",4.5,39,3.2,0.0,0.1,0,1,3,799,"a"],[115,"De Cuyper","Maxim De Cuyper","BHA","Brighton","DEF",4.5,84,2.8,0.0,1.9,2,3,5,1404,"a"],[116,"Dunk","Lewis Dunk","BHA","Brighton","DEF",4.5,100,3.0,0.0,0.7,1,1,7,2837,"a"],[117,"Coppola","Diego Coppola","BHA","Brighton","DEF",4.5,10,2.0,0.0,0.0,0,0,1,193,"a"],[118,"Igor","Igor Julio dos Santos de Paulo","BHA","Brighton","DEF",4.5,6,1.5,0.0,0.1,0,0,0,103,"a"],[119,"Costinha","Jo\u00e3o Pedro Loureiro da Costa","BHA","Brighton","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[120,"Svoboda","Michael Svoboda","BHA","Brighton","DEF",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[121,"Mitoma","Mitoma Kaoru","BHA","Brighton","MID",6.0,62,2.5,0.0,0.5,3,1,5,1714,"i"],[122,"Minteh","Yankuba Minteh","BHA","Brighton","MID",6.0,117,3.4,0.0,0.8,3,8,11,2389,"a"],[123,"Hinshelwood","Jack Hinshelwood","BHA","Brighton","MID",6.0,91,3.4,0.0,0.3,4,5,7,1736,"a"],[124,"Gro\u00df","Pascal Gro\u00df","BHA","Brighton","MID",5.5,78,4.1,0.0,2.0,1,6,6,1636,"a"],[125,"Georginio","Georginio Rutter","BHA","Brighton","FWD",5.5,87,2.7,0.0,0.7,3,5,7,1776,"a"],[126,"O'Riley","Matt O'Riley","BHA","Brighton","MID",5.5,16,2.7,0.0,0.1,1,0,1,202,"a"],[127,"Gomez","Diego G\u00f3mez Amarilla","BHA","Brighton","MID",5.0,97,3.0,0.0,2.1,5,1,8,2117,"a"],[128,"Buonanotte","Facundo Buonanotte","BHA","Brighton","MID",5.0,3,0.8,0.0,0.1,0,0,0,81,"a"],[129,"Ayari","Yasin Ayari","BHA","Brighton","MID",5.5,98,3.4,0.0,0.6,3,4,6,1921,"a"],[130,"Wieffer","Mats Wieffer","BHA","Brighton","DEF",5.0,94,3.6,0.0,0.4,2,4,6,1901,"a"],[131,"Baleba","Carlos Baleba","BHA","Brighton","MID",5.0,56,1.8,0.0,0.6,0,0,7,1646,"a"],[132,"Howell","Harry Howell","BHA","Brighton","MID",4.5,4,1.3,0.0,0.3,0,0,0,92,"a"],[133,"Watson","Tom Watson","BHA","Brighton","MID",5.0,5,0.8,0.0,0.0,0,0,0,57,"a"],[134,"Oriola","Nehemiah Oriola","BHA","Brighton","MID",4.5,1,1.0,0.0,0.2,0,0,0,1,"a"],[135,"Yohanna","Zadok Yohanna","BHA","Brighton","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[136,"Welbeck","Danny Welbeck","BHA","Brighton","FWD",6.0,126,3.4,0.0,3.0,13,1,10,2249,"a"],[137,"Tzimas","Stefanos Tzimas","BHA","Brighton","FWD",5.5,16,1.8,0.0,0.1,1,1,0,132,"d"],[138,"Kostoulas","Charalampos Kostoulas","BHA","Brighton","FWD",5.5,35,1.7,0.0,0.3,2,1,1,351,"a"],[139,"Ferguson","Evan Ferguson","BHA","Brighton","FWD",5.0,0,0.0,0.0,0.0,0,0,0,0,"i"],[328,"Struijk","Pascal Struijk","BHA","Brighton","DEF",5.0,108,3.2,0.0,0.5,0,1,7,2935,"a"],[504,"Vuskovic","Luka Vu\u0161kovi\u0107","BHA","Brighton","DEF",5.0,0,0.0,0.0,2.3,0,0,0,0,"a"],[40,"Rogers","Morgan Rogers","CHE","Chelsea","MID",7.5,169,4.6,0.0,34.1,10,8,9,3280,"a"],[140,"S\u00e1nchez","Robert Lynch S\u00e1nchez","CHE","Chelsea","GKP",5.0,113,3.2,0.0,2.0,0,1,9,3040,"a"],[141,"J\u00f6rgensen","Filip J\u00f6rgensen","CHE","Chelsea","GKP",5.0,9,1.8,0.0,0.2,0,0,0,378,"a"],[142,"James","Reece James","CHE","Chelsea","DEF",5.5,115,4.0,0.0,8.1,2,6,8,1957,"a"],[143,"Chalobah","Trevoh Chalobah","CHE","Chelsea","DEF",5.5,136,4.0,0.0,2.1,3,1,9,2780,"a"],[144,"Gusto","Malo Gusto","CHE","Chelsea","DEF",5.0,96,2.8,0.0,1.2,2,3,7,2255,"a"],[145,"Fofana","Wesley Fofana","CHE","Chelsea","DEF",5.0,65,2.6,0.0,0.0,0,2,4,1718,"s"],[146,"B.Badiashile","Beno\u00eet Badiashile Mukinayi","CHE","Chelsea","DEF",4.5,7,0.9,0.0,0.1,0,0,0,470,"a"],[147,"Tosin","Tosin Adarabioyo","CHE","Chelsea","DEF",4.5,34,2.1,0.0,0.2,0,0,2,788,"a"],[148,"Hato","Jorrel Hato","CHE","Chelsea","DEF",4.5,19,0.9,0.0,1.6,0,0,0,1139,"a"],[149,"Colwill","Levi Samuels Colwill","CHE","Chelsea","DEF",5.0,8,2.7,0.0,2.1,0,0,0,225,"a"],[150,"M.Sarr","Mamadou Sarr","CHE","Chelsea","DEF",4.5,3,1.0,0.0,0.1,0,0,0,100,"a"],[151,"Acheampong","Josh Acheampong","CHE","Chelsea","DEF",4.5,39,2.3,0.0,0.2,1,0,2,657,"a"],[152,"Palestra","Marco Palestra","CHE","Chelsea","DEF",5.5,0,0.0,0.0,1.6,0,0,0,0,"a"],[153,"Disasi","Axel Disasi","CHE","Chelsea","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[154,"Palmer","Cole Palmer","CHE","Chelsea","MID",9.5,114,4.4,0.0,13.2,10,2,3,1954,"a"],[155,"Enzo","Enzo Fern\u00e1ndez","CHE","Chelsea","MID",7.0,157,4.4,0.0,5.1,10,5,8,3114,"a"],[156,"Neto","Pedro Lomba Neto","CHE","Chelsea","MID",6.5,125,3.7,0.0,1.2,5,7,11,2629,"a"],[157,"Est\u00eav\u00e3o","Est\u00eav\u00e3o Almeida de Oliveira Gon\u00e7alves","CHE","Chelsea","MID",6.5,58,2.6,0.0,1.4,2,5,4,839,"a"],[158,"Gittens","Jamie Bynoe-Gittens","CHE","Chelsea","MID",6.0,25,1.6,0.0,0.1,0,2,1,486,"a"],[159,"Caicedo","Mois\u00e9s Caicedo Corozo","CHE","Chelsea","MID",5.5,110,3.3,0.0,3.8,3,1,6,2796,"a"],[161,"Lavia","Rom\u00e9o Lavia","CHE","Chelsea","MID",5.0,13,1.1,0.0,0.1,0,0,0,374,"a"],[163,"D.Essugo","D\u00e1rio Lu\u00eds Essugo","CHE","Chelsea","MID",4.5,1,0.3,0.0,0.2,0,0,0,26,"a"],[164,"Quenda","Geovany Quenda","CHE","Chelsea","MID",5.5,0,0.0,0.0,0.1,0,0,0,0,"d"],[165,"Jo\u00e3o Pedro","Jo\u00e3o Pedro Junqueira de Jesus","CHE","Chelsea","FWD",7.5,177,5.1,0.0,48.4,15,9,10,2658,"a"],[166,"N.Jackson","Nicolas Jackson","CHE","Chelsea","FWD",6.5,0,0.0,0.0,0.4,0,0,0,0,"a"],[167,"Delap","Liam Delap","CHE","Chelsea","FWD",5.5,45,1.6,0.0,0.5,1,2,2,1092,"a"],[168,"Marc Guiu","Marc Guiu Paz","CHE","Chelsea","FWD",5.0,13,1.3,0.0,0.5,0,1,0,265,"a"],[169,"Mheuka","Shumaira Mheuka","CHE","Chelsea","FWD",4.5,1,1.0,0.0,0.4,0,0,0,1,"a"],[170,"Emegha","Emmanuel Emegha","CHE","Chelsea","FWD",5.0,0,0.0,0.0,0.4,0,0,0,0,"d"],[104,"Onyeka","Frank Onyeka","COV","Coventry City","MID",5.0,12,2.0,0.0,0.2,0,2,0,88,"a"],[171,"Dovin","Oliver Dovin","COV","Coventry City","GKP",4.0,0,0.0,0.0,3.6,0,0,0,0,"a"],[172,"Wilson","Ben Wilson","COV","Coventry City","GKP",4.5,0,0.0,0.0,0.8,0,0,0,0,"a"],[173,"Thomas","Bobby Thomas","COV","Coventry City","DEF",4.0,0,0.0,0.0,5.1,0,0,0,0,"a"],[174,"Kitching","Liam Kitching","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.4,0,0,0,0,"a"],[175,"van Ewijk","Milan van Ewijk","COV","Coventry City","DEF",4.0,0,0.0,0.0,16.9,0,0,0,0,"a"],[176,"Dasilva","Jay Dasilva","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[177,"Kesler-Hayden","Kaine Kesler-Hayden","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[178,"Bidwell","Jake Bidwell","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[179,"Latibeaudiere","Joel Latibeaudiere","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[180,"Woolfenden","Luke Woolfenden","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[181,"Brau","Miguel Brau","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[182,"Amenda","Aur\u00e8le Amenda","COV","Coventry City","DEF",4.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[183,"Rudoni","Jack Rudoni","COV","Coventry City","MID",5.0,0,0.0,0.0,0.3,0,0,0,0,"d"],[184,"Grimes","Matt Grimes","COV","Coventry City","MID",5.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[185,"Sakamoto","Tatsuhiro Sakamoto","COV","Coventry City","MID",5.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[186,"Mason-Clark","Ephron Mason-Clark","COV","Coventry City","MID",5.5,0,0.0,0.0,0.3,0,0,0,0,"a"],[187,"Eccles","Josh Eccles","COV","Coventry City","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[188,"Torp","Victor Torp","COV","Coventry City","MID",5.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[189,"Shepherd","George Shepherd","COV","Coventry City","MID",4.5,0,0.0,0.0,0.3,0,0,0,0,"a"],[190,"Tchaouna","Loum Tchaouna","COV","Coventry City","MID",5.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[191,"Borges Rodrigues","Raphael Borges Rodrigues","COV","Coventry City","MID",4.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[192,"Andrews","Kaine Andrews","COV","Coventry City","MID",4.5,0,0.0,0.0,0.7,0,0,0,0,"a"],[193,"Wright","Haji Wright","COV","Coventry City","FWD",5.5,0,0.0,0.0,1.9,0,0,0,0,"a"],[194,"Thomas-Asante","Brandon Thomas-Asante","COV","Coventry City","FWD",5.0,0,0.0,0.0,1.0,0,0,0,0,"a"],[195,"Simms","Ellis Simms","COV","Coventry City","FWD",5.0,0,0.0,0.0,0.7,0,0,0,0,"a"],[196,"Markelo","Jahnoah Markelo","COV","Coventry City","FWD",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[197,"Bassette","Norman Bassette","COV","Coventry City","FWD",4.5,0,0.0,0.0,1.8,0,0,0,0,"a"],[198,"Henderson","Dean Henderson","CRY","Crystal Palace","GKP",5.0,131,3.5,0.0,3.1,0,0,11,3330,"a"],[199,"Benitez","Walter Ben\u00edtez","CRY","Crystal Palace","GKP",4.5,7,7.0,0.0,0.1,0,0,1,90,"a"],[200,"Lacroix","Maxence Lacroix","CRY","Crystal Palace","DEF",6.0,154,4.4,0.0,12.4,1,2,11,3085,"a"],[201,"Mu\u00f1oz","Daniel Mu\u00f1oz Mej\u00eda","CRY","Crystal Palace","DEF",5.5,136,4.7,0.0,12.7,4,4,10,2400,"a"],[202,"Richards","Chris Richards","CRY","Crystal Palace","DEF",5.0,128,3.9,0.0,0.8,1,0,11,2825,"a"],[203,"Canvot","Jaydee Canvot","CRY","Crystal Palace","DEF",5.0,72,3.6,0.0,0.4,0,0,5,1331,"a"],[204,"Mitchell","Tyrick Mitchell","CRY","Crystal Palace","DEF",4.5,135,3.6,0.0,7.3,1,3,12,3253,"a"],[205,"Sosa","Borna Sosa","CRY","Crystal Palace","DEF",4.5,6,0.9,0.0,0.1,0,0,0,99,"a"],[206,"Chadi Riad","Chadi Riad Dnanou","CRY","Crystal Palace","DEF",4.5,20,2.2,0.0,0.1,0,1,1,550,"a"],[207,"Mingueza","Oscar Mingueza","CRY","Crystal Palace","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[208,"Sarr","Isma\u00efla Sarr","CRY","Crystal Palace","MID",6.5,117,4.2,0.0,11.3,9,2,9,2173,"a"],[209,"Johnson","Brennan Johnson","CRY","Crystal Palace","MID",6.0,65,1.9,0.0,0.2,2,1,6,1710,"a"],[210,"Wharton","Adam Wharton","CRY","Crystal Palace","MID",5.5,112,3.3,0.0,0.2,1,6,8,2552,"d"],[211,"Yeremy","Y\u00e9remy Pino Santos","CRY","Crystal Palace","MID",5.5,77,2.3,0.0,0.2,2,2,7,2074,"a"],[212,"Hughes","Will Hughes","CRY","Crystal Palace","MID",4.5,45,1.5,0.0,9.9,0,1,5,1560,"a"],[213,"Lerma","Jefferson Lerma Sol\u00eds","CRY","Crystal Palace","MID",5.0,69,2.2,0.0,0.1,0,5,7,1722,"a"],[214,"Kamada","Daichi Kamada","CRY","Crystal Palace","MID",5.0,67,2.4,0.0,0.3,0,2,6,1899,"a"],[215,"Devenny","Justin Devenny","CRY","Crystal Palace","MID",5.0,36,1.7,0.0,0.0,1,0,1,785,"a"],[216,"Esse","Romain Esse","CRY","Crystal Palace","MID",5.0,4,1.0,0.0,0.1,0,0,0,40,"a"],[217,"M.Fran\u00e7a","Matheus Fran\u00e7a de Oliveira","CRY","Crystal Palace","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[218,"Doucour\u00e9","Cheick Doucour\u00e9","CRY","Crystal Palace","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[219,"J.Rak-Sakyi","Jesurun Rak-Sakyi","CRY","Crystal Palace","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[220,"Cardines","Rio Cardines","CRY","Crystal Palace","DEF",4.5,2,2.0,0.0,0.0,0,0,0,90,"a"],[221,"Drakes-Thomas","Jo\u00e9l Drakes-Thomas","CRY","Crystal Palace","MID",4.5,2,1.0,0.0,0.1,0,0,0,7,"a"],[222,"Strand Larsen","J\u00f8rgen Strand Larsen","CRY","Crystal Palace","FWD",6.0,75,2.1,0.0,0.7,4,1,5,2301,"a"],[223,"Mateta","Jean-Philippe Mateta","CRY","Crystal Palace","FWD",6.5,114,3.6,0.0,7.6,12,0,8,2210,"a"],[224,"Nketiah","Eddie Nketiah","CRY","Crystal Palace","FWD",5.5,23,1.9,0.0,0.5,2,0,0,414,"a"],[225,"Uche","Christantus Uche","CRY","Crystal Palace","FWD",5.0,17,1.2,0.0,0.0,0,1,0,159,"u"],[555,"Matthews","Remi Matthews","CRY","Crystal Palace","GKP",4.0,0,0.0,0.0,1.7,0,0,0,0,"a"],[226,"Pickford","Jordan Pickford","EVE","Everton","GKP",5.5,135,3.6,0.0,9.1,0,0,11,3420,"a"],[227,"Travers","Mark Travers","EVE","Everton","GKP",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[228,"King","Tom King","EVE","Everton","GKP",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[229,"Tarkowski","James Tarkowski","EVE","Everton","DEF",6.0,170,4.6,0.0,10.3,2,3,11,3330,"a"],[230,"Branthwaite","Jarrad Branthwaite","EVE","Everton","DEF",5.5,32,3.2,0.0,2.0,1,1,1,678,"a"],[231,"Keane","Michael Keane","EVE","Everton","DEF",5.0,131,4.0,0.0,1.5,3,1,7,2588,"a"],[232,"O'Brien","Jake O'Brien","EVE","Everton","DEF",5.0,116,3.1,0.0,0.6,1,3,10,3118,"a"],[233,"Mykolenko","Vitalii Mykolenko","EVE","Everton","DEF",4.5,95,2.9,0.0,1.7,0,1,9,2959,"a"],[234,"Patterson","Nathan Patterson","EVE","Everton","DEF",4.5,22,3.1,0.0,0.1,0,0,2,238,"a"],[235,"Aznou","Adam Aznou","EVE","Everton","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[236,"Dewsbury-Hall","Kiernan Dewsbury-Hall","EVE","Everton","MID",6.5,151,4.9,0.0,4.3,8,7,8,2629,"a"],[237,"Ndiaye","Iliman Ndiaye","EVE","Everton","MID",6.0,128,4.0,0.0,21.5,6,3,8,2781,"a"],[239,"Garner","James Garner","EVE","Everton","MID",6.0,159,4.2,0.0,2.3,2,7,11,3413,"i"],[240,"Iroegbunam","Tim Iroegbunam","EVE","Everton","MID",5.0,68,2.3,0.0,0.1,0,3,8,1477,"a"],[241,"McNeil","Dwight McNeil","EVE","Everton","MID",5.5,53,2.4,0.0,0.1,0,3,6,1161,"a"],[242,"George","Tyrique George","EVE","Everton","MID",5.5,16,1.1,0.0,0.1,0,0,1,351,"a"],[243,"Alcaraz","Carlos Alcaraz Dur\u00e1n","EVE","Everton","MID",5.0,29,1.4,0.0,0.1,0,1,3,679,"a"],[244,"Armstrong","Harrison Armstrong","EVE","Everton","MID",5.0,21,1.6,0.0,0.1,0,0,1,524,"a"],[245,"Dibling","Tyler Dibling","EVE","Everton","MID",5.5,18,1.3,0.0,0.1,0,0,2,349,"a"],[246,"R\u00f6hl","Merlin R\u00f6hl","EVE","Everton","MID",5.0,36,2.2,0.0,0.1,1,1,2,675,"a"],[247,"Hackney","Hayden Hackney","EVE","Everton","MID",5.5,0,0.0,0.0,0.3,0,0,0,0,"a"],[248,"Beto","Norberto Bercique Gomes Betuncal","EVE","Everton","FWD",5.5,104,2.8,0.0,3.4,9,1,5,1551,"a"],[249,"Barry","Thierno Barry","EVE","Everton","FWD",5.5,95,2.5,0.0,1.0,8,0,7,1898,"a"],[250,"Leno","Bernd Leno","FUL","Fulham","GKP",4.5,122,3.2,0.0,3.1,0,0,9,3420,"a"],[251,"Lecomte","Benjamin Lecomte","FUL","Fulham","GKP",4.0,0,0.0,0.0,1.5,0,0,0,0,"a"],[252,"McNally","Alfie McNally","FUL","Fulham","GKP",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[253,"Andersen","Joachim Andersen","FUL","Fulham","DEF",5.0,123,3.7,0.0,0.1,0,1,8,2882,"s"],[254,"Robinson","Antonee Robinson","FUL","Fulham","DEF",4.5,65,3.0,0.0,3.6,1,0,4,1487,"a"],[255,"J.Cuenca","Jorge Cuenca Barreno","FUL","Fulham","DEF",4.5,39,2.6,0.0,0.0,0,0,2,935,"a"],[256,"Tete","Kenny Tete","FUL","Fulham","DEF",4.5,81,3.7,0.0,0.2,1,0,6,1791,"a"],[257,"Bassey","Calvin Bassey","FUL","Fulham","DEF",4.5,103,3.4,0.0,0.5,1,1,7,2532,"a"],[258,"Castagne","Timothy Castagne","FUL","Fulham","DEF",4.5,61,2.0,0.0,0.2,0,2,3,1838,"a"],[261,"Iwobi","Alex Iwobi","FUL","Fulham","MID",5.5,103,3.6,0.0,0.9,4,3,5,2420,"a"],[262,"Smith Rowe","Emile Smith Rowe","FUL","Fulham","MID",5.5,80,2.2,0.0,0.4,3,1,6,1909,"a"],[263,"Kevin","Kevin Santos Lopes de Macedo","FUL","Fulham","MID",5.5,49,1.9,0.0,0.1,1,3,4,1030,"a"],[264,"Bobb","Oscar Bobb","FUL","Fulham","MID",5.5,42,1.8,0.0,0.5,0,2,4,1030,"a"],[265,"Berge","Sander Berge","FUL","Fulham","MID",5.0,91,2.6,0.0,0.4,0,3,8,2904,"a"],[266,"Cairney","Tom Cairney","FUL","Fulham","MID",5.0,41,1.7,0.0,0.0,2,0,2,756,"a"],[267,"Luki\u0107","Sa\u0161a Luki\u0107","FUL","Fulham","MID",5.0,67,2.6,0.0,0.1,1,4,6,1730,"a"],[268,"King","Josh King","FUL","Fulham","MID",5.5,63,2.0,0.0,0.1,1,3,5,1290,"a"],[269,"Sessegnon","Ryan Sessegnon","FUL","Fulham","DEF",4.5,95,3.5,0.0,0.4,3,3,6,1816,"a"],[270,"Reed","Harrison Reed","FUL","Fulham","MID",4.5,15,2.1,0.0,1.1,1,0,0,89,"a"],[271,"Muniz","Rodrigo Muniz Carvalho","FUL","Fulham","FWD",5.5,36,1.7,0.0,0.8,1,1,3,987,"a"],[272,"Kusi-Asare","Jonah Kusi-Asare","FUL","Fulham","FWD",4.5,6,0.9,0.0,8.6,0,0,0,49,"a"],[273,"Phillips","Dillon Phillips","HUL","Hull City","GKP",4.0,0,0.0,0.0,2.5,0,0,0,0,"a"],[274,"Butland","Jack Butland","HUL","Hull City","GKP",4.5,0,0.0,0.0,1.1,0,0,0,0,"a"],[275,"Cartwright","Harvey Cartwright","HUL","Hull City","GKP",4.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[276,"Lo-Tutala","Thimoth\u00e9e Lo-Tutala","HUL","Hull City","GKP",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[277,"Egan","John Egan","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.9,0,0,0,0,"a"],[278,"Hughes","Charlie Hughes","HUL","Hull City","DEF",4.0,0,0.0,0.0,2.1,0,0,0,0,"a"],[279,"Ajayi","Semi Ajayi","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.7,0,0,0,0,"a"],[280,"Coyle","Lewie Coyle","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.4,0,0,0,0,"a"],[281,"Drameh","Cody Drameh","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[282,"Giles","Ryan Giles","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.7,0,0,0,0,"a"],[283,"Jacob","Matty Jacob","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[284,"McCarthy","Cathal McCarthy","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[285,"McNair","Paddy McNair","HUL","Hull City","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[286,"Belloumi","Mohamed Belloumi","HUL","Hull City","MID",5.0,0,0.0,0.0,0.7,0,0,0,0,"a"],[287,"Millar","Liam Millar","HUL","Hull City","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[288,"Dowell","Kieran Dowell","HUL","Hull City","MID",4.5,0,0.0,0.0,0.6,0,0,0,0,"a"],[289,"Crooks","Matt Crooks","HUL","Hull City","MID",4.5,0,0.0,0.0,0.7,0,0,0,0,"a"],[290,"Slater","Regan Slater","HUL","Hull City","MID",4.5,0,0.0,0.0,1.1,0,0,0,0,"a"],[291,"Matazo","Eliot Matazo","HUL","Hull City","MID",4.5,0,0.0,0.0,0.0,0,0,0,0,"i"],[292,"\u00d6m\u00fcr","Abd\u00fclkadir \u00d6m\u00fcr","HUL","Hull City","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[293,"Kamara","Abu Kamara","HUL","Hull City","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[294,"Zambrano","\u00d3scar Zambrano","HUL","Hull City","MID",4.5,0,0.0,0.0,0.7,0,0,0,0,"a"],[295,"McBurnie","Oli McBurnie","HUL","Hull City","FWD",5.5,0,0.0,0.0,2.3,0,0,0,0,"a"],[296,"Akintola","David Akintola","HUL","Hull City","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[297,"Gyabi","Darko Gyabi","HUL","Hull City","MID",4.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[298,"Destan","Enis Destan","HUL","Hull City","FWD",4.5,0,0.0,0.0,2.8,0,0,0,0,"a"],[299,"Burstow","Mason Burstow","HUL","Hull City","FWD",4.5,0,0.0,0.0,1.1,0,0,0,0,"a"],[556,"Targett","Matt Targett","HUL","Hull City","DEF",4.0,0,0.0,0.0,1.6,0,0,0,0,"a"],[259,"Diop","Issa Diop","IPS","Ipswich Town","DEF",4.0,31,2.4,0.0,21.3,1,0,1,812,"a"],[300,"Walton","Christian Walton","IPS","Ipswich Town","GKP",4.5,0,0.0,0.0,0.7,0,0,0,0,"a"],[301,"Palmer","Alex Palmer","IPS","Ipswich Town","GKP",4.0,0,0.0,0.0,6.6,0,0,0,0,"a"],[302,"Button","David Button","IPS","Ipswich Town","GKP",4.0,0,0.0,0.0,0.7,0,0,0,0,"a"],[303,"Kipr\u00e9","C\u00e9dric Kipr\u00e9","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[304,"O'Shea","Dara O'Shea","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,1.2,0,0,0,0,"a"],[305,"Davis","Leif Davis","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,4.4,0,0,0,0,"a"],[306,"Greaves","Jacob Greaves","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[307,"Johnson","Ben Johnson","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[308,"Furlong","Darnell Furlong","IPS","Ipswich Town","DEF",4.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[309,"N\u00fa\u00f1ez","Marcelino N\u00fa\u00f1ez","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[310,"Matusiwa","Azor Matusiwa","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[311,"Burns","Wes Burns","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[312,"Taylor","Jack Taylor","IPS","Ipswich Town","MID",4.5,0,0.0,0.0,0.5,0,0,0,0,"a"],[313,"Clarke","Jack Clarke","IPS","Ipswich Town","MID",5.5,0,0.0,0.0,0.3,0,0,0,0,"a"],[314,"Ogbene","Chiedozie Ogbene","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[315,"Fatawu","Abdul Fatawu","IPS","Ipswich Town","MID",5.5,0,0.0,0.0,0.3,0,0,0,0,"a"],[316,"Emersonn","Emersonn Correia da Silva","IPS","Ipswich Town","FWD",5.5,0,0.0,0.0,0.4,0,0,0,0,"a"],[317,"Hirst","George Hirst","IPS","Ipswich Town","FWD",5.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[318,"Philogene","Jaden Philogene","IPS","Ipswich Town","MID",5.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[319,"Szmodics","Sam Szmodics","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[320,"Akpom","Chuba Akpom","IPS","Ipswich Town","FWD",5.0,0,0.0,0.0,0.5,0,0,0,0,"a"],[321,"Walle Egeli","Sindre Walle Egeli","IPS","Ipswich Town","FWD",4.5,0,0.0,0.0,2.4,0,0,0,0,"a"],[322,"Al-Hamadi","Ali Al-Hamadi","IPS","Ipswich Town","FWD",5.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[323,"McAteer","Kasey McAteer","IPS","Ipswich Town","MID",4.5,0,0.0,0.0,2.1,0,0,0,0,"a"],[324,"Mehmeti","Anis Mehmeti","IPS","Ipswich Town","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[554,"Van Oevelen","Kayne van Oevelen","IPS","Ipswich Town","GKP",4.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[260,"Wilson","Harry Wilson","LEE","Leeds","MID",6.5,168,4.7,0.0,9.4,10,9,9,2674,"a"],[326,"Perri","Lucas Estella Perri","LEE","Leeds","GKP",4.5,43,2.7,0.0,0.8,0,0,3,1440,"a"],[327,"Bijol","Jaka Bijol","LEE","Leeds","DEF",5.0,99,4.0,0.0,0.4,1,3,5,1888,"a"],[329,"Rodon","Joe Rodon","LEE","Leeds","DEF",4.5,109,3.1,0.0,2.3,2,0,6,2952,"a"],[330,"Bogle","Jayden Bogle","LEE","Leeds","DEF",4.5,96,2.8,0.0,0.4,1,5,6,2795,"a"],[331,"Gudmundsson","Gabriel Gudmundsson","LEE","Leeds","DEF",4.5,68,2.1,0.0,0.6,0,0,5,2637,"a"],[332,"Justin","James Justin","LEE","Leeds","DEF",4.5,94,3.2,0.0,0.5,2,1,6,1893,"a"],[333,"Bornauw","Sebastiaan Bornauw","LEE","Leeds","DEF",4.5,25,2.1,0.0,0.0,0,0,2,429,"a"],[334,"Muharemovi\u0107","Tarik Muharemovi\u0107","LEE","Leeds","DEF",5.0,0,0.0,0.0,0.6,0,0,0,0,"a"],[335,"Stach","Anton Stach","LEE","Leeds","MID",6.0,137,4.7,0.0,1.5,5,6,7,2369,"a"],[336,"Okafor","Noah Okafor","LEE","Leeds","MID",6.0,109,3.9,0.0,0.9,8,3,6,1553,"a"],[337,"Aaronson","Brenden Aaronson","LEE","Leeds","MID",5.5,126,3.4,0.0,0.6,4,8,9,2449,"a"],[338,"Ampadu","Ethan Ampadu","LEE","Leeds","MID",5.5,134,3.8,0.0,1.3,1,4,8,3119,"a"],[339,"Longstaff","Sean Longstaff","LEE","Leeds","MID",5.0,56,2.4,0.0,0.2,2,2,1,1003,"a"],[340,"Gelhardt","Joe Gelhardt","LEE","Leeds","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[341,"Gnonto","Wilfried Gnonto","LEE","Leeds","MID",5.0,32,1.4,0.0,0.1,0,3,1,521,"a"],[342,"Harrison","Jack Harrison","LEE","Leeds","MID",5.0,12,1.1,0.0,0.1,0,0,0,262,"a"],[343,"James","Daniel James","LEE","Leeds","MID",5.0,23,1.2,0.0,0.1,0,0,1,547,"a"],[344,"Gruev","Ilia Gruev","LEE","Leeds","MID",5.0,56,2.4,0.0,0.0,0,4,5,1318,"a"],[345,"Tanaka","Tanaka Ao","LEE","Leeds","MID",5.0,67,2.4,0.0,0.3,2,1,3,1307,"a"],[346,"Calvert-Lewin","Dominic Calvert-Lewin","LEE","Leeds","FWD",6.0,142,4.1,0.0,17.7,14,2,8,2721,"a"],[347,"Nmecha","Lukas Nmecha","LEE","Leeds","FWD",5.5,73,2.4,0.0,0.7,6,1,3,1065,"a"],[348,"Piroe","Jo\u00ebl Piroe","LEE","Leeds","FWD",5.0,17,1.1,0.0,0.5,0,0,1,244,"a"],[349,"Mateo Joseph","Mateo Joseph Fern\u00e1ndez-Regatillo","LEE","Leeds","FWD",4.5,0,0.0,0.0,0.6,0,0,0,0,"a"],[350,"A.Becker","Alisson Becker","LIV","Liverpool","GKP",5.5,91,3.5,0.0,4.3,0,0,8,2340,"a"],[351,"Mamardashvili","Giorgi Mamardashvili","LIV","Liverpool","GKP",5.0,34,3.4,0.0,0.2,0,0,2,867,"a"],[352,"Woodman","Freddie Woodman","LIV","Liverpool","GKP",4.0,6,2.0,0.0,1.3,0,0,0,212,"a"],[353,"Pecsi","Armin Pecsi","LIV","Liverpool","GKP",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[354,"Jaros","Vitezslav Jaros","LIV","Liverpool","GKP",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[355,"Davies","Harvey Davies","LIV","Liverpool","GKP",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[356,"Virgil","Virgil van Dijk","LIV","Liverpool","DEF",6.5,175,4.6,0.0,15.4,6,1,10,3420,"a"],[357,"Frimpong","Jeremie Frimpong","LIV","Liverpool","DEF",5.5,63,3.0,0.0,3.0,0,5,5,1032,"a"],[358,"Kerkez","Milos Kerkez","LIV","Liverpool","DEF",5.5,85,2.5,0.0,6.4,2,1,6,2251,"a"],[359,"Gomez","Joe Gomez","LIV","Liverpool","DEF",5.0,33,1.6,0.0,0.2,0,2,2,594,"i"],[360,"Bradley","Conor Bradley","LIV","Liverpool","DEF",5.0,42,2.8,0.0,0.0,0,2,4,928,"i"],[361,"Lucky","Wellity Lucky","LIV","Liverpool","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[362,"Jacquet","Jeremy Jacquet","LIV","Liverpool","DEF",5.0,0,0.0,0.0,2.2,0,0,0,0,"a"],[363,"Leoni","Giovanni Leoni","LIV","Liverpool","DEF",4.0,0,0.0,0.0,0.1,0,0,0,0,"i"],[364,"Tsimikas","Kostas Tsimikas","LIV","Liverpool","DEF",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[365,"Ramsay","Calvin Ramsay","LIV","Liverpool","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[366,"Wirtz","Florian Wirtz","LIV","Liverpool","MID",7.5,125,3.8,0.0,11.3,5,4,10,2374,"a"],[367,"Gakpo","Cody Gakpo","LIV","Liverpool","MID",7.0,131,3.6,0.0,3.5,7,5,10,2736,"a"],[368,"Szoboszlai","Dominik Szoboszlai","LIV","Liverpool","MID",7.0,160,4.4,0.0,44.4,6,7,9,3232,"a"],[369,"Ngumoha","Rio Ngumoha","LIV","Liverpool","MID",6.0,43,2.3,0.0,1.7,2,1,2,547,"a"],[370,"Chiesa","Federico Chiesa","LIV","Liverpool","MID",5.5,37,1.4,0.0,0.2,2,1,0,317,"a"],[371,"Gravenberch","Ryan Gravenberch","LIV","Liverpool","MID",6.0,144,4.0,0.0,1.7,5,5,9,2991,"a"],[372,"Mac Allister","Alexis Mac Allister","LIV","Liverpool","MID",5.5,108,2.9,0.0,1.9,2,5,7,2654,"a"],[373,"C.Jones","Curtis Jones","LIV","Liverpool","MID",5.5,81,2.4,0.0,0.1,1,3,3,1923,"a"],[374,"Endo","Endo Wataru","LIV","Liverpool","MID",5.0,12,1.5,0.0,0.0,0,1,1,170,"d"],[375,"Nyoni","Trey Nyoni","LIV","Liverpool","MID",5.0,6,1.0,0.0,0.0,0,0,0,21,"a"],[376,"Bajcetic","Stefan Baj\u010deti\u0107 Maquieira","LIV","Liverpool","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"i"],[377,"Munoz","Victor Munoz","LIV","Liverpool","MID",6.5,0,0.0,0.0,0.9,0,0,0,0,"a"],[378,"McConnell","James McConnell","LIV","Liverpool","MID",4.5,0,0.0,0.0,0.2,0,0,0,0,"a"],[379,"Isak","Alexander Isak","LIV","Liverpool","FWD",9.0,41,2.9,0.0,12.1,3,1,1,694,"a"],[380,"Ekitik\u00e9","Hugo Ekitik\u00e9","LIV","Liverpool","FWD",7.5,125,4.5,0.0,0.2,11,4,7,1797,"i"],[381,"Koumas","Lewis Koumas","LIV","Liverpool","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[382,"Danns","Jayden Danns","LIV","Liverpool","FWD",4.5,0,0.0,0.0,0.1,0,0,0,0,"i"],[383,"Elliott","Harvey Elliott","LIV","Liverpool","MID",5.5,5,1.0,0.0,0.1,0,0,0,110,"a"],[238,"Grealish","Jack Grealish","MCI","Man City","MID",6.5,79,4.0,0.0,0.3,2,6,7,1627,"a"],[384,"Donnarumma","Gianluigi Donnarumma","MCI","Man City","GKP",5.5,135,4.0,0.0,11.2,0,0,15,3060,"a"],[385,"Trafford","James Trafford","MCI","Man City","GKP",5.0,13,3.2,0.0,0.9,0,0,1,360,"a"],[386,"Bettinelli","Marcus Bettinelli","MCI","Man City","GKP",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[387,"O'Reilly","Nico O'Reilly","MCI","Man City","DEF",6.5,160,4.7,0.0,24.4,5,4,14,2643,"a"],[388,"Gu\u00e9hi","Marc Gu\u00e9hi","MCI","Man City","DEF",6.0,179,5.1,0.0,25.1,3,5,14,3150,"a"],[389,"Matheus N.","Matheus Nunes","MCI","Man City","DEF",6.0,154,4.5,0.0,5.6,1,8,12,2861,"a"],[390,"R\u00faben","R\u00faben dos Santos Gato Alves Dias","MCI","Man City","DEF",5.5,113,4.3,0.0,1.3,2,0,12,2139,"a"],[391,"Gvardiol","Jo\u0161ko Gvardiol","MCI","Man City","DEF",5.5,79,4.4,0.0,6.5,2,2,6,1370,"a"],[392,"A\u00eft-Nouri","Rayan A\u00eft-Nouri","MCI","Man City","DEF",5.5,60,3.5,0.0,1.0,0,2,5,971,"a"],[393,"Khusanov","Abdukodir Khusanov","MCI","Man City","DEF",5.5,67,3.2,0.0,2.0,0,0,6,1427,"a"],[394,"Alleyne","Max Alleyne","MCI","Man City","DEF",5.0,5,2.5,0.0,0.1,0,0,0,135,"a"],[395,"Lewis","Rico Lewis","MCI","Man City","DEF",4.5,19,1.7,0.0,0.2,0,1,1,401,"a"],[396,"Vitor Reis","Vitor de Oliveira Nunes dos Reis","MCI","Man City","DEF",4.5,0,0.0,0.0,0.0,0,0,0,0,"a"],[397,"Semenyo","Antoine Semenyo","MCI","Man City","MID",8.5,202,5.5,0.0,20.2,17,6,12,3200,"a"],[398,"Foden","Phil Foden","MCI","Man City","MID",7.0,131,4.0,0.0,5.3,7,5,11,2078,"a"],[399,"Cherki","Rayan Cherki","MCI","Man City","MID",7.5,135,4.1,0.0,10.0,4,13,8,1772,"a"],[400,"Doku","J\u00e9r\u00e9my Doku","MCI","Man City","MID",7.5,120,4.0,0.0,6.7,5,8,8,1773,"a"],[401,"Marmoush","Omar Marmoush","MCI","Man City","FWD",7.0,56,2.7,0.0,0.6,3,3,4,691,"a"],[402,"Rodrigo","Rodrigo 'Rodri' Hernandez Cascante","MCI","Man City","MID",6.5,69,3.3,0.0,0.1,1,1,5,1510,"i"],[403,"Savinho","S\u00e1vio Moreira de Oliveira","MCI","Man City","MID",6.5,43,1.8,0.0,0.1,1,2,3,817,"a"],[404,"Reijnders","Tijjani Reijnders","MCI","Man City","MID",6.0,92,3.3,0.0,0.3,5,3,7,1623,"a"],[405,"N.Gonzalez","Nico Gonz\u00e1lez Iglesias","MCI","Man City","MID",5.5,63,2.5,0.0,0.1,1,0,7,1561,"a"],[406,"Kova\u010di\u0107","Mateo Kova\u010di\u0107","MCI","Man City","MID",5.5,9,1.5,0.0,0.1,0,1,0,125,"a"],[407,"Echeverri","Claudio Echeverri","MCI","Man City","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[408,"Phillips","Kalvin Phillips","MCI","Man City","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[409,"Mukasa","Divine Mukasa","MCI","Man City","MID",4.5,2,1.0,0.0,0.1,0,0,0,25,"a"],[410,"Monga","Jeremy Monga","MCI","Man City","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[411,"Haaland","Erling Haaland","MCI","Man City","FWD",15.5,239,6.8,0.0,74.6,27,8,13,2953,"a"],[481,"Anderson","Elliot Anderson","MCI","Man City","MID",6.5,180,4.7,0.0,12.3,4,5,10,3332,"a"],[43,"Tielemans","Youri Tielemans","MUN","Man Utd","MID",6.0,68,2.7,0.0,1.0,0,4,4,1857,"d"],[162,"Andrey Santos","Andrey Nascimento dos Santos","MUN","Man Utd","MID",5.0,47,1.7,0.0,1.6,1,0,1,1247,"a"],[325,"Darlow","Karl Darlow","MUN","Man Utd","GKP",4.5,71,3.2,0.0,0.1,0,0,5,1980,"d"],[412,"Lammens","Senne Lammens","MUN","Man Utd","GKP",5.0,109,3.4,0.0,20.1,0,0,8,2880,"a"],[413,"Bayindir","Altay Bay\u0131nd\u0131r","MUN","Man Utd","GKP",4.5,11,1.8,0.0,0.2,0,0,0,540,"a"],[414,"Heaton","Tom Heaton","MUN","Man Utd","GKP",4.0,0,0.0,0.0,0.3,0,0,0,0,"a"],[415,"Dorgu","Patrick Dorgu","MUN","Man Utd","MID",6.0,95,3.7,0.0,2.1,4,4,4,1440,"a"],[416,"De Ligt","Matthijs de Ligt","MUN","Man Utd","DEF",5.0,43,3.3,0.0,0.0,1,0,1,1170,"i"],[417,"Dalot","Diogo Dalot Teixeira","MUN","Man Utd","DEF",5.0,111,3.3,0.0,3.3,1,6,7,2609,"a"],[418,"Maguire","Harry Maguire","MUN","Man Utd","DEF",5.0,90,3.9,0.0,6.8,1,2,7,1649,"a"],[419,"Martinez","Lisandro Mart\u00ednez","MUN","Man Utd","DEF",5.0,51,2.8,0.0,1.4,0,0,5,1229,"d"],[420,"Yoro","Leny Yoro","MUN","Man Utd","DEF",5.0,56,1.8,0.0,0.6,0,1,2,1730,"a"],[421,"Heaven","Ayden Heaven","MUN","Man Utd","DEF",4.5,42,2.5,0.0,0.4,0,1,2,920,"a"],[422,"Mazraoui","Noussair Mazraoui","MUN","Man Utd","DEF",4.5,53,2.6,0.0,0.8,0,0,5,977,"a"],[423,"Shaw","Luke Shaw","MUN","Man Utd","DEF",4.5,113,3.0,0.0,20.0,1,1,10,3220,"a"],[424,"Amass","Harry Amass","MUN","Man Utd","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[425,"Fredricson","Tyler Fredricson","MUN","Man Utd","DEF",4.0,1,1.0,0.0,0.1,0,0,0,2,"a"],[426,"B.Fernandes","Bruno Borges Fernandes","MUN","Man Utd","MID",12.0,235,6.7,0.0,48.6,9,24,7,3065,"a"],[427,"Mbeumo","Bryan Mbeumo","MUN","Man Utd","MID",8.0,148,4.5,0.0,13.3,11,3,8,2611,"a"],[428,"Cunha","Matheus Santos Carneiro da Cunha","MUN","Man Utd","MID",8.0,143,4.3,0.0,15.2,10,4,8,2493,"a"],[429,"Rashford","Marcus Rashford","MUN","Man Utd","MID",7.0,0,0.0,0.0,1.5,0,0,0,0,"a"],[430,"Mount","Mason Mount","MUN","Man Utd","MID",5.5,58,2.5,0.0,0.1,3,0,5,1010,"a"],[431,"Amad","Amad Diallo","MUN","Man Utd","MID",6.0,91,2.8,0.0,1.5,2,5,6,2339,"a"],[432,"Mainoo","Kobbie Mainoo","MUN","Man Utd","MID",5.5,73,2.6,0.0,1.3,1,2,6,1653,"a"],[433,"Ugarte","Manuel Ugarte Ribeiro","MUN","Man Utd","MID",5.0,38,1.7,0.0,0.0,0,0,1,876,"i"],[434,"J.Fletcher","Jack Fletcher","MUN","Man Utd","MID",5.0,3,1.0,0.0,0.0,0,0,0,107,"a"],[435,"Lacey","Shea Lacey","MUN","Man Utd","MID",5.0,3,1.0,0.0,0.1,0,0,0,40,"a"],[436,"Collyer","Toby Collyer","MUN","Man Utd","MID",5.0,0,0.0,0.0,0.0,0,0,0,0,"a"],[437,"Bendito Mantato","Bendito Mantato","MUN","Man Utd","MID",4.5,1,1.0,0.0,0.2,0,0,0,15,"a"],[438,"Fletcher","Tyler Fletcher","MUN","Man Utd","MID",4.5,2,1.0,0.0,0.3,0,0,0,17,"a"],[439,"\u0160e\u0161ko","Benjamin Sesko","MUN","Man Utd","FWD",7.0,111,3.7,0.0,3.2,11,2,2,1630,"d"],[440,"Zirkzee","Joshua Zirkzee","MUN","Man Utd","FWD",5.5,42,1.8,0.0,0.7,2,1,2,607,"a"],[441,"Obi","Chido Obi","MUN","Man Utd","FWD",4.5,0,0.0,0.0,1.2,0,0,0,0,"a"],[442,"Pope","Nick Pope","NEW","Newcastle","GKP",5.0,96,3.6,0.0,1.0,0,1,7,2416,"a"],[443,"Gillespie","Mark Gillespie","NEW","Newcastle","GKP",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[444,"Jaouen","Ewen Jaouen","NEW","Newcastle","GKP",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[445,"Thiaw","Malick Thiaw","NEW","Newcastle","DEF",5.0,126,3.6,0.0,2.6,4,0,5,2963,"a"],[446,"Sch\u00e4r","Fabian Sch\u00e4r","NEW","Newcastle","DEF",5.0,51,3.2,0.0,0.1,0,0,4,1089,"a"],[447,"Botman","Sven Botman","NEW","Newcastle","DEF",5.0,89,3.6,0.0,0.4,1,1,5,1834,"a"],[448,"Burn","Dan Burn","NEW","Newcastle","DEF",5.0,93,3.2,0.0,2.7,1,3,6,2195,"a"],[449,"Hall","Lewis Hall","NEW","Newcastle","DEF",5.0,79,2.6,0.0,4.7,1,2,4,2176,"a"],[450,"Livramento","Tino Livramento","NEW","Newcastle","DEF",5.0,59,3.5,0.0,0.1,0,1,6,1326,"d"],[451,"A.Murphy","Alex Murphy","NEW","Newcastle","DEF",4.0,2,1.0,0.0,0.8,0,0,0,7,"a"],[452,"Bruno G.","Bruno Guimar\u00e3es Rodriguez Moura","NEW","Newcastle","MID",7.0,154,5.3,0.0,8.3,9,7,6,2456,"a"],[453,"Barnes","Harvey Barnes","NEW","Newcastle","MID",6.0,106,2.9,0.0,1.0,7,1,5,1951,"a"],[454,"Elanga","Anthony Elanga","NEW","Newcastle","MID",6.0,48,1.5,0.0,0.7,0,1,2,1302,"a"],[456,"J.Ramsey","Jacob Ramsey","NEW","Newcastle","MID",5.0,62,2.2,0.0,0.5,2,3,1,1441,"a"],[457,"J.Murphy","Jacob Murphy","NEW","Newcastle","MID",6.0,82,2.5,0.0,0.2,3,2,8,1606,"a"],[458,"Joelinton","Joelinton C\u00e1ssio Apolin\u00e1rio de Lira","NEW","Newcastle","MID",5.5,73,2.7,0.0,0.0,2,1,5,1950,"d"],[459,"L.Miley","Lewis Miley","NEW","Newcastle","MID",5.5,72,3.1,0.0,0.0,1,4,2,1493,"i"],[460,"Willock","Joe Willock","NEW","Newcastle","MID",5.0,38,1.6,0.0,0.1,0,2,3,972,"a"],[461,"Tour\u00e9","Bazoumana Tour\u00e9","NEW","Newcastle","MID",6.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[462,"Steur","Sean Steur","NEW","Newcastle","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[463,"Woltemade","Nick Woltemade","NEW","Newcastle","FWD",6.0,108,3.3,0.0,1.6,8,4,8,1896,"a"],[464,"Wissa","Yoane Wissa","NEW","Newcastle","FWD",6.0,27,1.4,0.0,1.5,1,1,1,517,"a"],[465,"Osula","William Osula","NEW","Newcastle","FWD",6.0,76,3.2,0.0,2.4,7,1,2,805,"a"],[466,"Neave","Sean Neave","NEW","Newcastle","FWD",4.5,1,1.0,0.0,0.7,0,0,0,13,"a"],[467,"Sels","Matz Sels","NFO","Nott'm Forest","GKP",5.0,105,3.4,0.0,1.5,0,0,7,2667,"a"],[468,"John","John Victor Maciel Furtado","NFO","Nott'm Forest","GKP",4.5,11,2.2,0.0,0.1,0,0,1,437,"a"],[469,"N.Williams","Neco Williams","NFO","Nott'm Forest","DEF",5.0,128,3.5,0.0,12.4,2,3,9,3203,"a"],[470,"Morato","Felipe Rodrigues da Silva","NFO","Nott'm Forest","DEF",5.0,53,2.5,0.0,0.1,1,0,2,1340,"a"],[471,"Milenkovi\u0107","Nikola Milenkovi\u0107","NFO","Nott'm Forest","DEF",5.5,119,3.1,0.0,2.3,0,1,9,3375,"a"],[472,"Murillo","Murillo Costa dos Santos","NFO","Nott'm Forest","DEF",5.5,83,3.3,0.0,0.2,1,0,6,2130,"d"],[473,"Aina","Ola Aina","NFO","Nott'm Forest","DEF",4.5,67,3.7,0.0,5.0,0,2,6,1587,"a"],[474,"Jair Cunha","Jair Paula da Cunha Filho","NFO","Nott'm Forest","DEF",4.5,13,1.4,0.0,1.0,0,0,0,514,"a"],[475,"Savona","Nicol\u00f2 Savona","NFO","Nott'm Forest","DEF",4.5,39,2.8,0.0,0.0,2,0,3,1025,"i"],[476,"O.Richards","Omar Richards","NFO","Nott'm Forest","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[477,"Abbott","Zach Abbott","NFO","Nott'm Forest","DEF",4.0,3,1.0,0.0,0.2,0,0,0,165,"a"],[478,"Netz","Luca Netz","NFO","Nott'm Forest","DEF",4.5,11,1.6,0.0,0.0,0,0,0,353,"a"],[479,"Bindon","Tyler Bindon","NFO","Nott'm Forest","DEF",4.0,0,0.0,0.0,0.2,0,0,0,0,"a"],[480,"Gibbs-White","Morgan Gibbs-White","NFO","Nott'm Forest","MID",8.0,188,5.1,0.0,12.9,15,4,10,3101,"a"],[482,"Hudson-Odoi","Callum Hudson-Odoi","NFO","Nott'm Forest","MID",6.0,88,2.9,0.0,0.0,3,4,6,1838,"d"],[483,"Ndoye","Dan Ndoye","NFO","Nott'm Forest","MID",5.5,50,2.1,0.0,0.8,1,2,2,1167,"a"],[484,"Hutchinson","Omari Hutchinson","NFO","Nott'm Forest","MID",5.5,82,2.6,0.0,0.2,1,7,6,1676,"a"],[485,"Bakwa","Dilane Bakwa","NFO","Nott'm Forest","MID",5.5,26,1.9,0.0,0.0,0,2,2,549,"a"],[486,"McAtee","James McAtee","NFO","Nott'm Forest","MID",5.5,17,1.2,0.0,0.1,0,1,0,288,"a"],[487,"Dominguez","Nicol\u00e1s Dom\u00ednguez","NFO","Nott'm Forest","MID",5.0,48,1.8,0.0,0.1,1,1,3,1168,"a"],[488,"Sangar\u00e9","Ibrahim Sangar\u00e9","NFO","Nott'm Forest","MID",5.0,89,3.2,0.0,0.4,2,2,8,2073,"a"],[489,"Yates","Ryan Yates","NFO","Nott'm Forest","MID",4.5,30,1.4,0.0,7.4,0,2,0,602,"a"],[490,"Wood","Chris Wood","NFO","Nott'm Forest","FWD",6.0,41,2.7,0.0,1.8,3,0,2,896,"a"],[491,"Igor Jesus","Igor Jesus Maciel da Cruz","NFO","Nott'm Forest","FWD",6.0,114,3.1,0.0,3.5,6,6,9,2293,"a"],[492,"Awoniyi","Taiwo Awoniyi","NFO","Nott'm Forest","FWD",5.5,43,2.5,0.0,0.4,4,2,1,480,"a"],[493,"Kalimuendo","Arnaud Kalimuendo","NFO","Nott'm Forest","FWD",5.5,9,1.0,0.0,0.1,0,0,0,89,"a"],[558,"Schlager","Xaver Schlager","NFO","Nott'm Forest","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[112,"Van Hecke","Jan Paul van Hecke","TOT","Spurs","DEF",5.0,148,4.1,0.0,8.3,3,3,10,3210,"a"],[455,"Tonali","Sandro Tonali","TOT","Spurs","MID",5.5,81,2.3,0.0,3.0,0,2,7,2534,"a"],[494,"Vicario","Guglielmo Vicario","TOT","Spurs","GKP",4.5,90,2.9,0.0,1.7,0,0,7,2790,"a"],[495,"Austin","Brandon Austin","TOT","Spurs","GKP",4.0,0,0.0,0.0,0.6,0,0,0,0,"a"],[496,"Kinsky","Anton\u00edn Kinsk\u00fd","TOT","Spurs","GKP",4.5,20,2.9,0.0,15.9,0,0,2,630,"a"],[497,"Dubravka","Martin Dubravka","TOT","Spurs","GKP",4.0,96,2.7,0.0,24.8,0,0,4,3150,"a"],[498,"Senesi","Marcos Senesi Bar\u00f3n","TOT","Spurs","DEF",6.0,175,4.7,0.0,12.0,0,6,11,3288,"a"],[499,"Pedro Porro","Pedro Porro Sauceda","TOT","Spurs","DEF",5.5,117,3.4,0.0,23.9,1,3,9,2793,"a"],[500,"Romero","Cristian Romero","TOT","Spurs","DEF",5.0,91,4.0,0.0,1.0,4,1,5,1869,"a"],[501,"Danso","Kevin Danso","TOT","Spurs","DEF",5.0,63,2.6,0.0,0.2,0,0,4,1489,"a"],[502,"Robertson","Andrew Robertson","TOT","Spurs","DEF",4.5,55,2.3,0.0,1.7,1,0,4,1165,"a"],[503,"Van de Ven","Micky van de Ven","TOT","Spurs","DEF",5.0,116,3.3,0.0,6.0,4,1,9,3041,"a"],[505,"Spence","Djed Spence","TOT","Spurs","DEF",4.5,78,2.6,0.0,10.5,0,0,9,2049,"a"],[506,"Udogie","Destiny Udogie","TOT","Spurs","DEF",4.5,29,1.4,0.0,0.4,0,1,1,1335,"a"],[507,"Phillips","Ashley Phillips","TOT","Spurs","DEF",4.5,0,0.0,0.0,0.1,0,0,0,0,"a"],[508,"Davies","Ben Davies","TOT","Spurs","DEF",4.0,10,3.3,0.0,0.7,1,0,0,136,"a"],[509,"Byfield","Jun'ai Byfield","TOT","Spurs","DEF",4.0,1,1.0,0.0,0.1,0,0,0,1,"a"],[510,"Rowswell","James Rowswell","TOT","Spurs","DEF",4.0,1,1.0,0.0,0.1,0,0,0,1,"a"],[511,"Souza","Jo\u00e3o Victor de Souza Menezes","TOT","Spurs","DEF",4.0,3,0.8,0.0,0.3,0,0,0,142,"a"],[512,"Kudus","Mohammed Kudus","TOT","Spurs","MID",6.5,75,3.9,0.0,0.3,2,6,7,1535,"d"],[513,"Xavi","Xavi Simons","TOT","Spurs","MID",6.0,80,2.9,0.0,0.0,2,5,4,1747,"i"],[514,"Tel","Mathys Tel","TOT","Spurs","MID",6.0,78,2.5,0.0,0.2,4,2,3,1334,"a"],[515,"Maddison","James Maddison","TOT","Spurs","MID",6.5,3,1.0,0.0,2.6,0,0,0,34,"a"],[516,"Bentancur","Rodrigo Bentancur","TOT","Spurs","MID",5.5,86,3.3,0.0,0.1,1,1,8,1880,"a"],[517,"Odobert","Wilson Odobert","TOT","Spurs","MID",5.5,46,1.9,0.0,0.0,0,2,2,972,"i"],[518,"P.M.Sarr","Pape Matar Sarr","TOT","Spurs","MID",5.0,71,2.7,0.0,0.4,2,4,3,1388,"a"],[519,"Gallagher","Conor Gallagher","TOT","Spurs","MID",5.5,44,2.8,0.0,0.2,1,1,2,1183,"a"],[520,"Bergvall","Lucas Bergvall","TOT","Spurs","MID",5.5,49,2.1,0.0,0.2,1,3,3,955,"a"],[521,"Kulusevski","Dejan Kulusevski","TOT","Spurs","MID",6.5,0,0.0,0.0,0.0,0,0,0,0,"i"],[522,"Gray","Archie Gray","TOT","Spurs","MID",5.0,61,2.5,0.0,0.2,2,2,5,1471,"a"],[523,"Moore","Mikey Moore","TOT","Spurs","MID",5.0,0,0.0,0.0,0.1,0,0,0,0,"a"],[524,"Olusesi","Callum Olusesi","TOT","Spurs","MID",4.5,1,1.0,0.0,0.9,0,0,0,14,"a"],[525,"Fernandes","Mateus Fernandes","TOT","Spurs","MID",6.0,135,3.8,0.0,4.7,3,4,8,3017,"a"],[526,"Solanke","Dominic Solanke-Mitchell","TOT","Spurs","FWD",6.0,40,2.7,0.0,3.5,3,0,0,997,"a"],[527,"Richarlison","Richarlison de Andrade","TOT","Spurs","FWD",6.0,119,3.7,0.0,1.5,11,4,7,1954,"a"],[528,"Scarlett","Dane Scarlett","TOT","Spurs","FWD",4.5,2,1.0,0.0,1.7,0,0,0,7,"a"],[529,"Roefs","Robin Roefs","SUN","Sunderland","GKP",5.0,136,3.9,0.0,5.9,0,0,10,3150,"a"],[530,"Patterson","Anthony Patterson","SUN","Sunderland","GKP",4.0,0,0.0,0.0,1.1,0,0,0,0,"a"],[531,"Ellborg","Melker Ellborg","SUN","Sunderland","GKP",4.5,16,5.3,0.0,0.1,0,0,1,270,"a"],[532,"Ballard","Daniel Ballard","SUN","Sunderland","DEF",5.0,116,4.0,0.0,2.6,2,2,6,2144,"a"],[533,"Mukiele","Nordi Mukiele","SUN","Sunderland","DEF",5.5,151,4.7,0.0,8.3,3,5,9,2784,"a"],[534,"Hume","Trai Hume","SUN","Sunderland","DEF",4.5,110,2.9,0.0,1.2,2,1,9,3032,"a"],[535,"Alderete","Omar Alderete","SUN","Sunderland","DEF",5.0,125,3.8,0.0,1.3,1,1,10,2797,"a"],[536,"Reinildo","Reinildo Mandava","SUN","Sunderland","DEF",4.5,74,3.0,0.0,0.6,0,2,6,1966,"a"],[537,"Seelt","Jenson Seelt","SUN","Sunderland","DEF",4.5,2,1.0,0.0,0.0,0,0,0,133,"a"],[538,"Hjelde","Leo Fuhr Hjelde","SUN","Sunderland","DEF",4.0,0,0.0,0.0,0.4,0,0,0,0,"a"],[539,"O'Nien","Luke O'Nien","SUN","Sunderland","DEF",4.0,26,2.2,0.0,2.3,0,1,2,565,"a"],[540,"Masuaku","Arthur Masuaku","SUN","Sunderland","DEF",4.0,1,0.3,0.0,1.6,0,0,0,125,"a"],[541,"Meunier","Thomas Meunier","SUN","Sunderland","DEF",4.5,0,0.0,0.0,0.6,0,0,0,0,"a"],[542,"E.Le F\u00e9e","Enzo Le F\u00e9e","SUN","Sunderland","MID",6.0,147,4.1,0.0,5.9,5,6,10,2930,"a"],[543,"Diarra","Habib Diarra","SUN","Sunderland","MID",5.5,65,3.2,0.0,0.1,2,6,5,1403,"a"],[544,"Xhaka","Granit Xhaka","SUN","Sunderland","MID",5.5,124,3.6,0.0,6.4,1,6,9,2901,"a"],[545,"Sadiki","Noah Sadiki","SUN","Sunderland","MID",5.0,80,2.4,0.0,0.5,0,2,9,2891,"a"],[546,"Adingra","Simon Adingra","SUN","Sunderland","MID",5.0,34,2.4,0.0,0.4,1,1,4,649,"a"],[547,"Mundle","Romaine Mundle","SUN","Sunderland","MID",5.0,14,1.0,0.0,0.0,0,0,0,399,"a"],[548,"Rigg","Chris Rigg","SUN","Sunderland","MID",5.0,36,2.0,0.0,0.1,1,1,3,758,"a"],[549,"Talbi","Chemsdine Talbi","SUN","Sunderland","MID",5.5,83,3.0,0.0,0.3,4,2,7,1553,"a"],[550,"Jocelin.T","Djiamgone Jocelin Ta Bi","SUN","Sunderland","MID",5.0,1,1.0,0.0,0.0,0,0,0,38,"a"],[551,"Angulo","Nilson Angulo","SUN","Sunderland","MID",5.0,13,1.6,0.0,0.1,0,0,1,401,"a"],[552,"Brobbey","Brian Brobbey","SUN","Sunderland","FWD",6.0,92,3.0,0.0,22.2,7,2,6,1920,"a"],[553,"Isidor","Wilson Isidor","SUN","Sunderland","FWD",5.5,74,2.3,0.0,1.4,6,1,4,1148,"a"]];
+
+const COLS = ["id","web_name","full_name","team_short","team_name","pos_short","now_cost","total_points","points_per_game","form","selected_by_percent","goals_scored","assists","clean_sheets","minutes","status"];
+
+let PLAYERS = PLAYERS_RAW.map(row => {
+  const o = {};
+  COLS.forEach((key, i) => { o[key] = row[i]; });
+  o.element_type = {GKP:1, DEF:2, MID:3, FWD:4}[o.pos_short] || 0;
+  return o;
+});
+
+let sortKey = "total_points";
+let sortDir = -1;
+
+function populateTeamFilter(){
+  const teamSel = document.getElementById("teamFilter");
+  const names = [...new Set(PLAYERS.map(p => p.team_name))].sort();
+  teamSel.innerHTML = '<option value="">All clubs</option>' +
+    names.map(n => `<option value="${n}">${n}</option>`).join("");
+}
+
+function render(){
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const team = document.getElementById("teamFilter").value;
+  const posId = document.getElementById("posFilter").value;
+
+  let rows = PLAYERS.filter(p => {
+    const matchesQ = !q || p.web_name.toLowerCase().includes(q) || p.full_name.toLowerCase().includes(q) || p.team_name.toLowerCase().includes(q);
+    const matchesTeam = !team || p.team_name === team;
+    const matchesPos = !posId || String(p.element_type) === posId;
+    return matchesQ && matchesTeam && matchesPos;
+  });
+
+  rows.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if(typeof av === "string") return sortDir * av.localeCompare(bv);
+    return sortDir * ((av||0) - (bv||0));
+  });
+
+  document.getElementById("count").textContent = `${rows.length} of ${PLAYERS.length} players`;
+
+  const tbody = document.getElementById("gridBody");
+  const frag = document.createDocumentFragment();
+  rows.forEach(p => {
+    const tr = document.createElement("tr");
+    const color = TEAM_COLORS[p.team_short] || "#8a8672";
+    const statusClass = "status-" + (p.status || "a");
+    tr.innerHTML = `
+      <td class="col-player">${p.web_name}<span class="full">${p.full_name}</span></td>
+      <td class="col-team" style="color:${color}"><span class="crest" style="background:${color}"></span>${p.team_short}</td>
+      <td><span class="pos-pill pos-${p.pos_short}">${p.pos_short}</span></td>
+      <td class="price">£${p.now_cost.toFixed(1)}</td>
+      <td class="points">${p.total_points}</td>
+      <td class="num">${p.points_per_game.toFixed(1)}</td>
+      <td class="num">${p.form.toFixed(1)}</td>
+      <td class="num">${p.selected_by_percent.toFixed(1)}%</td>
+      <td class="num">${p.goals_scored}</td>
+      <td class="num">${p.assists}</td>
+      <td class="num">${p.clean_sheets}</td>
+      <td class="num"><span class="status-dot ${statusClass}"></span>${p.minutes}</td>
+    `;
+    frag.appendChild(tr);
+  });
+  tbody.innerHTML = "";
+  tbody.appendChild(frag);
+}
+
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("teamFilter").addEventListener("change", render);
+document.getElementById("posFilter").addEventListener("change", render);
+
+document.querySelectorAll("#headRow th").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key;
+    if(sortKey === key){ sortDir *= -1; } else { sortKey = key; sortDir = -1; }
+    document.querySelectorAll("#headRow th .arrow").forEach(a => a.remove());
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.textContent = sortDir === -1 ? "\u25bc" : "\u25b2";
+    th.appendChild(arrow);
+    render();
+  });
+});
+
+populateTeamFilter();
+document.getElementById("tapeStatus").textContent = "26 Jul 2026 (evening) \u00b7 " + PLAYERS.length + " players \u00b7 20 clubs";
+render();
+
+/* ---------- Live data refresh ---------- */
+const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
+// The FPL API has no CORS headers, so a direct browser fetch from this file will fail.
+// Try a few public CORS relays in turn; if your network blocks all of them, the
+// button will fail gracefully and the embedded snapshot keeps working as-is.
+const REFRESH_PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+const POS_SHORT = {1:"GKP", 2:"DEF", 3:"MID", 4:"FWD"};
+
+async function fetchLiveBootstrap(){
+  let lastErr;
+  for(const buildUrl of REFRESH_PROXIES){
+    try{
+      const res = await fetch(buildUrl(FPL_URL), {cache:"no-store"});
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      if(data && Array.isArray(data.elements) && Array.isArray(data.teams)) return data;
+      throw new Error("Unexpected payload shape");
+    }catch(err){
+      lastErr = err;
+      continue;
+    }
+  }
+  throw lastErr || new Error("All proxies failed");
+}
+
+function buildPlayersFromApi(data){
+  const teamsById = {};
+  data.teams.forEach(t => { teamsById[t.id] = t; });
+  return data.elements.map(p => {
+    const team = teamsById[p.team] || {};
+    return {
+      id: p.id,
+      web_name: p.web_name,
+      full_name: (p.first_name + " " + p.second_name).trim(),
+      team_short: team.short_name || "",
+      team_name: team.name || "",
+      pos_short: POS_SHORT[p.element_type] || "?",
+      element_type: p.element_type,
+      now_cost: p.now_cost / 10,
+      total_points: p.total_points,
+      points_per_game: parseFloat(p.points_per_game) || 0,
+      form: parseFloat(p.form) || 0,
+      selected_by_percent: parseFloat(p.selected_by_percent) || 0,
+      goals_scored: p.goals_scored,
+      assists: p.assists,
+      clean_sheets: p.clean_sheets,
+      minutes: p.minutes,
+      status: p.status,
+    };
+  });
+}
+
+async function refreshLiveData(){
+  const btn = document.getElementById("refreshBtn");
+  const status = document.getElementById("refreshStatus");
+  btn.disabled = true;
+  btn.textContent = "\u21bb Fetching\u2026";
+  status.className = "refresh-status";
+  status.textContent = "";
+
+  try{
+    const data = await fetchLiveBootstrap();
+    PLAYERS = buildPlayersFromApi(data);
+    populateTeamFilter();
+    render();
+
+    const now = new Date();
+    const stamp = now.toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"}) +
+      " " + now.toLocaleTimeString(undefined, {hour:"2-digit", minute:"2-digit"});
+    document.getElementById("tapeStatus").textContent =
+      "LIVE \u00b7 fetched " + stamp + " \u00b7 " + PLAYERS.length + " players \u00b7 " + data.teams.length + " clubs";
+
+    status.className = "refresh-status ok";
+    status.textContent = "Updated successfully.";
+  }catch(err){
+    console.error("Live refresh failed:", err);
+    status.className = "refresh-status err";
+    status.textContent = "Couldn't fetch live data \u2014 your network may be blocking the connection. Still showing the snapshot above.";
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = "&#8635; Refresh live data";
+  }
+}
+
+document.getElementById("refreshBtn").addEventListener("click", refreshLiveData);
+</script>
+
+</body>
+</html>

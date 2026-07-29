@@ -1091,6 +1091,7 @@
       <div class="pts-tabs">
         <button type="button" class="pts-tab active" data-tab="manual">Manual upload<span class="pts-badge reliable">Reliable</span></button>
         <button type="button" class="pts-tab" data-tab="auto">Automated<span class="pts-badge beta">Beta</span></button>
+        <button type="button" class="pts-tab" data-tab="github">From GitHub<span class="pts-badge reliable">Repo</span></button>
       </div>
 
       <div class="pts-tab-panel active" id="ptsPanelManual">
@@ -1121,6 +1122,30 @@
           <b>Experimental.</b> This attempts to sign in to Fantasy Football Scout and pull the Rate My Team players table directly, routed through a public CORS proxy since FFS's members area doesn't allow direct cross-origin requests from other sites. FFS doesn't publish this as an open API, so their login flow can change or block this at any time &mdash; treat it as best-effort, not guaranteed. Your credentials are only held in memory for this one request, are never saved to this file or localStorage, and are sent straight to FFS's own login endpoint (not to the proxy) &mdash; but because that request still transits a third-party proxy server on the network path, only use this if you're comfortable with that. If it fails, use <b>Manual upload</b> above instead, which always works.
         </p>
         <div class="pts-status" id="ptsAutoStatus"></div>
+      </div>
+
+      <div class="pts-tab-panel" id="ptsPanelGithub">
+        <div class="pts-field-row">
+          <div class="pts-field">
+            <label for="ptsGhOwner">Owner</label>
+            <input type="text" id="ptsGhOwner" value="munozleonel" style="width:130px">
+          </div>
+          <div class="pts-field">
+            <label for="ptsGhRepo">Repo</label>
+            <input type="text" id="ptsGhRepo" value="myfpl" style="width:100px">
+          </div>
+          <div class="pts-field">
+            <label for="ptsGhBranch">Branch</label>
+            <input type="text" id="ptsGhBranch" value="main" style="width:80px">
+          </div>
+          <div class="pts-field">
+            <label for="ptsGhPath">Path</label>
+            <input type="text" id="ptsGhPath" value="FFS_FPLpoints.xlsx" style="width:170px">
+          </div>
+          <button type="button" class="pts-btn" id="ptsGhLoadBtn">Load from GitHub</button>
+        </div>
+        <p class="pts-note">Reads the <b>.xlsx</b> file already committed to this repo (same format as Manual upload: <b>Player, Team, Pos, GW1&hellip;GW38, Total, Price, Value</b>) &mdash; handy for loading the latest projections on a new machine without re-uploading the file by hand. Works straight away for a public repo; if the repo is private, paste a GitHub token in the Cloud Profile Sync panel below first and this will use it automatically.</p>
+        <div class="pts-status" id="ptsGithubStatus"></div>
       </div>
     </div>
 
@@ -2171,6 +2196,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     tabs: document.querySelectorAll('.pts-tab'),
     panelManual: document.getElementById('ptsPanelManual'),
     panelAuto: document.getElementById('ptsPanelAuto'),
+    panelGithub: document.getElementById('ptsPanelGithub'),
     fileInput: document.getElementById('ptsFileInput'),
     loadFileBtn: document.getElementById('ptsLoadFileBtn'),
     manualStatus: document.getElementById('ptsManualStatus'),
@@ -2178,6 +2204,12 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     passInput: document.getElementById('ptsPass'),
     autoFetchBtn: document.getElementById('ptsAutoFetchBtn'),
     autoStatus: document.getElementById('ptsAutoStatus'),
+    ghOwner: document.getElementById('ptsGhOwner'),
+    ghRepo: document.getElementById('ptsGhRepo'),
+    ghBranch: document.getElementById('ptsGhBranch'),
+    ghPath: document.getElementById('ptsGhPath'),
+    ghLoadBtn: document.getElementById('ptsGhLoadBtn'),
+    githubStatus: document.getElementById('ptsGithubStatus'),
     controls: document.getElementById('ptsControls'),
     search: document.getElementById('ptsSearch'),
     teamFilter: document.getElementById('ptsTeamFilter'),
@@ -2197,13 +2229,14 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
   };
 
   /* ---- tabs ---- */
+  const TAB_PANELS = { manual: els.panelManual, auto: els.panelAuto, github: els.panelGithub };
   els.tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       els.tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      const isManual = tab.dataset.tab === 'manual';
-      els.panelManual.classList.toggle('active', isManual);
-      els.panelAuto.classList.toggle('active', !isManual);
+      Object.entries(TAB_PANELS).forEach(([key, panel]) => {
+        if(panel) panel.classList.toggle('active', key === tab.dataset.tab);
+      });
     });
   });
 
@@ -2269,7 +2302,16 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     renderPtsTable();
   }
 
-  /* ---- parsing a workbook (shared by manual upload + automated fetch) ---- */
+  /* ---- parsing a workbook (shared by manual upload + automated fetch + GitHub load) ---- */
+  function parseWorkbookArrayBuffer(buf){
+    if(typeof XLSX === 'undefined'){
+      throw new Error("Couldn't load the Excel-reading library (xlsx.js) — check your network settings/connection and try again.");
+    }
+    const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const aoa = XLSX.utils.sheet_to_json(sheet, {header:1, defval:null, raw:true});
+    return rowsFromAOA(aoa);
+  }
   function rowsFromAOA(aoa){
     let headerIdx = -1;
     for(let i=0; i<aoa.length; i++){
@@ -2326,10 +2368,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     const reader = new FileReader();
     reader.onload = (e) => {
       try{
-        const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        const aoa = XLSX.utils.sheet_to_json(sheet, {header:1, defval:null, raw:true});
-        const rows = rowsFromAOA(aoa);
+        const rows = parseWorkbookArrayBuffer(e.target.result);
         PTS_ROWS = rows;
         const now = new Date();
         PTS_META = {
@@ -2348,6 +2387,65 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     };
     reader.onerror = () => setStatus(els.manualStatus, "Couldn't read that file from disk.", 'err');
     reader.readAsArrayBuffer(file);
+  });
+
+  /* ---- load workbook straight from this GitHub repo ---- */
+  els.ghLoadBtn.addEventListener('click', async () => {
+    const owner = els.ghOwner.value.trim();
+    const repo = els.ghRepo.value.trim();
+    const branch = els.ghBranch.value.trim() || 'main';
+    const path = els.ghPath.value.trim().replace(/^\/+/, '');
+    if(!owner || !repo || !path){
+      setStatus(els.githubStatus, 'Fill in owner, repo and path first.', 'err');
+      return;
+    }
+    els.ghLoadBtn.disabled = true;
+    setStatus(els.githubStatus, 'Fetching \u2026');
+    try{
+      // Public repos: raw.githubusercontent.com works with no auth and has CORS enabled.
+      const rawUrl = `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(branch)}/${path.split('/').map(encodeURIComponent).join('/')}`;
+      let buf;
+      const rawRes = await fetch(rawUrl, {cache:'no-store'});
+      if(rawRes.ok){
+        buf = await rawRes.arrayBuffer();
+      } else {
+        // Private repo or raw host blocked: fall back to the Contents API, using a
+        // token from Cloud Profile Sync if one has been entered/remembered there.
+        let token = '';
+        try{
+          const tokenInput = document.getElementById('cloudToken');
+          token = (tokenInput && tokenInput.value.trim()) || localStorage.getItem('fplGithubToken_v1') || '';
+        }catch(e){ /* ignore */ }
+        if(!token) throw new Error(`Couldn't fetch the raw file (HTTP ${rawRes.status}). If this is a private repo, paste a GitHub token into the Cloud Profile Sync panel below and try again.`);
+        const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(branch)}`;
+        const apiRes = await fetch(apiUrl, {
+          headers: {
+            'Accept': 'application/vnd.github.raw+json',
+            'Authorization': 'Bearer ' + token,
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+        });
+        if(!apiRes.ok) throw new Error(`GitHub API request failed (HTTP ${apiRes.status}).`);
+        buf = await apiRes.arrayBuffer();
+      }
+
+      const rows = parseWorkbookArrayBuffer(buf);
+      PTS_ROWS = rows;
+      const now = new Date();
+      PTS_META = {
+        source: `GitHub (${owner}/${repo}/${path})`,
+        timestamp: now.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) + ' ' + now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}),
+        count: rows.length,
+      };
+      savePtsState();
+      publishPtsIndex();
+      setStatus(els.githubStatus, `Loaded ${rows.length} players from ${owner}/${repo}/${path}.`, 'ok');
+      renderPtsAll();
+    }catch(err){
+      console.error('Points projections: GitHub load failed', err);
+      setStatus(els.githubStatus, "Couldn't load from GitHub: " + err.message, 'err');
+    }
+    els.ghLoadBtn.disabled = false;
   });
 
   /* ---- automated (experimental) fetch ----

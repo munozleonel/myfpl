@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "savedAt": "2026-07-29T05:13:20.458Z",
+  "squads": {
+    "1": {
+      "squadIds": [
+        411,
+        426
+      ],
+      "lineupState": {},
+      "startGW": "1"
+    },
+    "2": {
+      "squadIds": [],
+      "lineupState": {},
+      "startGW": "1"
+    },
+    "3": {
+      "squadIds": [
+        4
+      ],
+      "lineupState": {},
+      "startGW": "1"
+    }
+  },
+  "watched": [
+    "palmer|CHE"
+  ]
+}

@@ -340,6 +340,13 @@
     border-radius:2px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
   }
   .reset-squad-btn:hover{border-color:#F8696B;color:#F8696B;}
+  .optimise-btn{
+    background:var(--panel-2);border:1px solid #2f7a4a;color:var(--green);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;
+    border-radius:2px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
+  }
+  .optimise-btn:hover{border-color:var(--green);background:#152018;}
+  .optimise-btn:disabled{opacity:.5;cursor:wait;}
   .cloud-sync-panel{
     margin-top:18px;padding:16px 18px 18px;
     border:1px solid #2f5a44;background:#101a15;border-radius:3px;
@@ -922,8 +929,10 @@
           <select id="squadStartGW1"></select>
         </label>
         <div class="quota-summary" id="quotaSummary1"></div>
+        <button id="optimiseSquadBtn1" class="optimise-btn">&#9889; Optimise squad</button>
         <button id="resetSquadBtn1" class="reset-squad-btn">Reset squad</button>
       </div>
+      <div id="optimiseStatus1" class="refresh-status" style="margin:-6px 0 10px;"></div>
 
       <div class="planner-body">
         <div class="picker-panel">
@@ -1488,6 +1497,212 @@ function createSquadPlanner(sfx){
     renderAll();
   }
 
+  /* ---------- Optimiser (Squad A only) ----------
+     Picks 15 players maximising projected starting-XI points over a 6-GW
+     window, subject to:
+       - squad quotas (2 GK / 5 DEF / 5 MID / 3 FWD)
+       - a standard £100.0m squad budget
+       - no more than 3 players from any one club
+       - each gameweek's line-up must start exactly 1 GK and at least 3 DEF
+     "Bench-aware" means the objective isn't just the 15 players' raw combined
+     points — each gameweek only the best valid 11 (given the constraints
+     above) count towards the score, exactly as it would in a real squad. */
+  function pointsForGW(p, gw){
+    const v = getPlayerPointsForGW(p, gw);
+    return v == null ? 0 : v;
+  }
+
+  // Given a 15-man squad, returns the optimal starting XI for one gameweek
+  // (1 GK, top-3 DEF forced in, remaining 7 slots by highest points).
+  function bestLineupForGW(squadList, gw){
+    const withPts = squadList.map(p => ({p, pts: pointsForGW(p, gw)}));
+    const gk = withPts.filter(x => x.p.element_type === 1).sort((a,b) => b.pts - a.pts)[0];
+    const defs = withPts.filter(x => x.p.element_type === 2).sort((a,b) => b.pts - a.pts);
+    const rest = withPts.filter(x => x.p.element_type !== 1 && x.p.element_type !== 2);
+    const forcedDefs = defs.slice(0, 3);
+    const fillerPool = defs.slice(3).concat(rest).sort((a,b) => b.pts - a.pts);
+    const filler = fillerPool.slice(0, 7);
+    const starters = [];
+    if(gk) starters.push(gk);
+    forcedDefs.forEach(x => starters.push(x));
+    filler.forEach(x => starters.push(x));
+    return starters;
+  }
+
+  // Sum of optimal starting-XI points across a range of gameweeks — this is
+  // the true, bench-aware objective the optimiser maximises.
+  function benchAwareScore(squadList, gwRange){
+    let total = 0;
+    gwRange.forEach(gw => {
+      total += bestLineupForGW(squadList, gw).reduce((s,x) => s + x.pts, 0);
+    });
+    return total;
+  }
+
+  function optimiseSquad(){
+    const btn = document.getElementById('optimiseSquadBtn' + sfx);
+    const statusEl = document.getElementById('optimiseStatus' + sfx);
+    if(!btn) return;
+    const setOptStatus = (msg, cls) => {
+      if(!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = 'refresh-status' + (cls ? ' ' + cls : '');
+    };
+
+    if(!window.PTS_INDEX || window.PTS_INDEX.size === 0){
+      setOptStatus('Load Points Projections data first (Manual upload / GitHub / Automated below) \u2014 the optimiser needs it.', 'err');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Optimising\u2026';
+    setOptStatus('Crunching 6-gameweek projections\u2026');
+
+    // defer one tick so the "Optimising…" state actually paints before the
+    // (synchronous, CPU-bound) search runs
+    setTimeout(() => {
+      try{
+        const start = +startGWSel.value;
+        const gwRange = [];
+        for(let i=0; i<6; i++) gwRange.push(start + i);
+
+        const scored = SQ_PLAYERS.map(p => ({
+          ...p,
+          _optPts: gwRange.reduce((s,gw) => s + pointsForGW(p, gw), 0),
+        }));
+
+        const BUDGET = 100.0;
+        const TOP_N = {1:18, 2:45, 3:45, 4:35};
+        const CHEAP_N = 12;
+        const byPos = {1:[], 2:[], 3:[], 4:[]};
+        [1,2,3,4].forEach(pos => {
+          const inPos = scored.filter(p => p.element_type === pos);
+          const byPts = [...inPos].sort((a,b) => b._optPts - a._optPts).slice(0, TOP_N[pos]);
+          const byCheap = [...inPos].sort((a,b) => a.now_cost - b.now_cost).slice(0, CHEAP_N);
+          const merged = new Map();
+          [...byPts, ...byCheap].forEach(p => merged.set(p.id, p));
+          byPos[pos] = [...merged.values()];
+        });
+        let pool = [].concat(byPos[1], byPos[2], byPos[3], byPos[4]);
+
+        if(pool.length < 15){
+          setOptStatus("Not enough players with projected points to build a full squad yet.", 'err');
+          btn.disabled = false; btn.textContent = '\u26a1 Optimise squad';
+          return;
+        }
+
+        /* ---- Phase A: greedy build by raw 6-GW points, respecting quotas + 3-per-club cap ---- */
+        const teamCount = {};
+        const quotaLeft = {...QUOTA};
+        let squad = [];
+        const inSquad = id => squad.some(s => s.id === id);
+        [...pool].sort((a,b) => b._optPts - a._optPts).forEach(p => {
+          if(squad.length >= 15 || inSquad(p.id)) return;
+          if(quotaLeft[p.element_type] <= 0) return;
+          if((teamCount[p.team_short]||0) >= 3) return;
+          squad.push(p);
+          quotaLeft[p.element_type]--;
+          teamCount[p.team_short] = (teamCount[p.team_short]||0) + 1;
+        });
+        // top up from the full player list if the trimmed pool couldn't fill every slot
+        if(squad.length < 15){
+          [...scored].sort((a,b) => b._optPts - a._optPts).forEach(p => {
+            if(squad.length >= 15 || inSquad(p.id)) return;
+            if(quotaLeft[p.element_type] <= 0) return;
+            if((teamCount[p.team_short]||0) >= 3) return;
+            squad.push(p);
+            quotaLeft[p.element_type]--;
+            teamCount[p.team_short] = (teamCount[p.team_short]||0) + 1;
+            if(!byPos[p.element_type].some(x => x.id === p.id)) byPos[p.element_type].push(p);
+          });
+        }
+
+        const squadCost = () => squad.reduce((s,p) => s + p.now_cost, 0);
+
+        /* ---- Phase B: repair budget, always giving up the fewest points per downgrade ---- */
+        let guard = 0;
+        while(squadCost() > BUDGET && guard < 200){
+          guard++;
+          let best = null;
+          squad.forEach((outP, idx) => {
+            byPos[outP.element_type].forEach(inP => {
+              if(inSquad(inP.id)) return;
+              if(inP.now_cost >= outP.now_cost) return;
+              if(inP.team_short !== outP.team_short && (teamCount[inP.team_short]||0) >= 3) return;
+              const ptsLoss = outP._optPts - inP._optPts;
+              const costSave = outP.now_cost - inP.now_cost;
+              if(!best || ptsLoss < best.ptsLoss || (ptsLoss === best.ptsLoss && costSave > best.costSave)){
+                best = {idx, outP, inP, ptsLoss, costSave};
+              }
+            });
+          });
+          if(!best) break;
+          teamCount[best.outP.team_short]--;
+          teamCount[best.inP.team_short] = (teamCount[best.inP.team_short]||0) + 1;
+          squad[best.idx] = best.inP;
+        }
+
+        if(squadCost() > BUDGET){
+          setOptStatus(`Couldn't fit a full squad under \u00a3${BUDGET.toFixed(1)}m with the available player pool.`, 'err');
+          btn.disabled = false; btn.textContent = '\u26a1 Optimise squad';
+          return;
+        }
+
+        /* ---- Phase C: hill-climb on the true bench-aware objective ---- */
+        let improved = true;
+        let iterations = 0;
+        while(improved && iterations < 400){
+          improved = false;
+          iterations++;
+          const currentScore = benchAwareScore(squad, gwRange);
+          outer:
+          for(let i=0; i<squad.length; i++){
+            const outP = squad[i];
+            const candidates = byPos[outP.element_type];
+            for(let j=0; j<candidates.length; j++){
+              const inP = candidates[j];
+              if(inSquad(inP.id)) continue;
+              const newCost = squadCost() - outP.now_cost + inP.now_cost;
+              if(newCost > BUDGET) continue;
+              if(inP.team_short !== outP.team_short && (teamCount[inP.team_short]||0) >= 3) continue;
+              const trial = squad.slice();
+              trial[i] = inP;
+              const trialScore = benchAwareScore(trial, gwRange);
+              if(trialScore > currentScore + 1e-9){
+                teamCount[outP.team_short]--;
+                teamCount[inP.team_short] = (teamCount[inP.team_short]||0) + 1;
+                squad = trial;
+                improved = true;
+                break outer;
+              }
+            }
+          }
+        }
+
+        /* ---- apply result: squad + a matching optimal lineup for each GW ---- */
+        squadIds = new Set(squad.map(p => p.id));
+        lineupState = {};
+        gwRange.forEach(gw => {
+          const starters = bestLineupForGW(squad, gw);
+          lineupState[gw] = new Set(starters.map(x => x.p.id));
+        });
+
+        saveSquadState();
+        populateTeamFilter();
+        populatePriceFilters();
+        renderAll();
+
+        const finalScore = benchAwareScore(squad, gwRange);
+        setOptStatus(`Optimised \u2014 projected ${finalScore.toFixed(1)} starting-XI pts across GW${gwRange[0]}\u2013GW${gwRange[gwRange.length-1]}, \u00a3${squadCost().toFixed(1)}m.`, 'ok');
+      }catch(err){
+        console.error('Squad optimiser failed', err);
+        setOptStatus('Optimiser hit an error: ' + err.message, 'err');
+      }
+      btn.disabled = false;
+      btn.textContent = '\u26a1 Optimise squad';
+    }, 30);
+  }
+
   function squadCounts(){
     const c = {1:0,2:0,3:0,4:0};
     squadIds.forEach(id => {
@@ -1973,6 +2188,13 @@ function createSquadPlanner(sfx){
       resetSquadState();
     }
   });
+  const optimiseBtnEl = document.getElementById('optimiseSquadBtn' + sfx);
+  if(optimiseBtnEl){
+    optimiseBtnEl.addEventListener('click', () => {
+      if(squadIds.size > 0 && !confirm("This will replace this squad's players and lineup choices with the optimiser's picks. Continue?")) return;
+      optimiseSquad();
+    });
+  }
 
   populateTeamFilter();
   populatePriceFilters();

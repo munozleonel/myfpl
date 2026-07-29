@@ -325,6 +325,36 @@
   }
   .planner-instance:first-of-type{margin-top:22px;}
   .planner-instance-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  .minimise-btn{
+    margin-left:auto;
+    background:var(--panel-2);border:1px solid #3a3a32;color:#a8a292;
+    width:26px;height:26px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:2px;cursor:pointer;font-size:13px;
+    transition:transform .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .minimise-btn:hover{border-color:var(--amber);color:var(--amber);}
+  .planner-instance.minimised .minimise-btn{transform:rotate(-90deg);}
+  .planner-instance-content{
+    max-height:none;overflow:visible;
+  }
+  .planner-instance.minimised .planner-instance-content{
+    display:none;
+  }
+  .planner-min-summary{
+    display:none;
+    flex-wrap:wrap;gap:10px 24px;align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    padding:10px 14px;
+    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+  }
+  .planner-instance.minimised .planner-min-summary{display:flex;}
+  .min-summary-item{display:flex;flex-direction:column;gap:2px;}
+  .min-summary-item b{
+    font-size:10px;color:#8a8672;letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+  }
+  .min-summary-item .min-summary-val{font-size:15px;color:var(--amber);font-weight:700;}
+  .min-summary-empty{font-size:11.5px;color:#6b6858;}
   .planner-instance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
   .planner-instance-head h3{
     font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px;
@@ -347,6 +377,58 @@
   }
   .optimise-btn:hover{border-color:var(--green);background:#152018;}
   .optimise-btn:disabled{opacity:.5;cursor:wait;}
+
+  /* ---------- Transfers panel ---------- */
+  .transfer-panel{
+    margin-top:16px;padding:14px 16px 16px;
+    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+  }
+  .transfer-panel-title{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:#c9c4b2;margin-bottom:4px;
+  }
+  .transfer-panel-sub{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b6858;margin:0 0 10px;line-height:1.5;
+  }
+  .transfer-row{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  }
+  .transfer-row select{
+    background:var(--panel);border:1px solid #3a3a32;color:var(--paper);
+    padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:2px;outline:none;
+  }
+  .transfer-row select:focus{border-color:var(--amber);}
+  .transfer-add-btn{
+    background:var(--panel);border:1px solid var(--amber-dim);color:var(--amber);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;border-radius:2px;
+    cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
+  }
+  .transfer-add-btn:hover{border-color:var(--amber);background:#201f19;}
+  .transfer-add-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .transfer-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .transfer-chip{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#cfcabc;
+    background:var(--panel);border:1px solid #2a2a24;border-radius:2px;padding:6px 10px;
+  }
+  .transfer-chip .tgw{color:var(--amber);font-weight:700;min-width:40px;}
+  .transfer-chip .tout{color:#F8696B;}
+  .transfer-chip .tin{color:var(--green);}
+  .transfer-chip .tremove{
+    margin-left:auto;cursor:pointer;color:#6b6858;font-weight:700;padding:0 4px;
+  }
+  .transfer-chip .tremove:hover{color:#F8696B;}
+  .transfer-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6858;padding:2px 0;}
+  .transfer-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6858;margin-top:8px;line-height:1.5;}
+
+  .sq-col-player .xfer-tag{
+    display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.04em;
+    padding:1px 4px;border-radius:2px;margin-left:6px;vertical-align:middle;
+  }
+  .sq-col-player .xfer-tag.out{background:#3a1a1a;color:#F8696B;}
+  .sq-col-player .xfer-tag.in{background:#12281c;color:var(--green);}
+  td.sq-fx.not-in-squad{cursor:default;}
+  td.sq-fx.not-in-squad .pill{opacity:.4;}
   .cloud-sync-panel{
     margin-top:18px;padding:16px 18px 18px;
     border:1px solid #2f5a44;background:#101a15;border-radius:3px;
@@ -904,7 +986,10 @@
       <div class="planner-instance-head">
         <span class="planner-instance-dot" style="background:var(--amber)"></span>
         <h3 style="color:var(--amber)">Squad A</h3>
+        <button id="minimiseBtn1" class="minimise-btn" title="Minimise squad" aria-expanded="true">&#9662;</button>
       </div>
+      <div class="planner-min-summary" id="plannerMinSummary1"></div>
+      <div class="planner-instance-content" id="plannerContent1">
       <p id="storageWarning1" class="storage-warning">
         This browser is blocking local storage for files opened this way, so this squad won't be saved between visits here. It'll still work fine for the current session.
       </p>
@@ -950,6 +1035,21 @@
         </div>
       </div>
 
+      <div class="transfer-panel">
+        <div class="transfer-panel-title">Transfers</div>
+        <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
+        <div class="transfer-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+            <select id="transferGW1"></select>
+          </label>
+          <select id="transferOut1"></select>
+          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <select id="transferIn1"></select>
+          <button id="addTransferBtn1" class="transfer-add-btn">+ Add transfer</button>
+        </div>
+        <div class="transfer-list" id="transferList1"></div>
+      </div>
+
       <div class="fixture-run-wrap" id="fixtureRunWrap1">
         <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
@@ -962,13 +1062,17 @@
         </div>
         <div class="squad-empty" id="squadTableEmpty1">Add players to this squad above to see their fixture run here.</div>
       </div>
+      </div>
     </div>
 
     <div class="planner-instance" id="plannerRoot2">
       <div class="planner-instance-head">
         <span class="planner-instance-dot" style="background:#6cc6ff"></span>
         <h3 style="color:#6cc6ff">Squad B</h3>
+        <button id="minimiseBtn2" class="minimise-btn" title="Minimise squad" aria-expanded="true">&#9662;</button>
       </div>
+      <div class="planner-min-summary" id="plannerMinSummary2"></div>
+      <div class="planner-instance-content" id="plannerContent2">
       <p id="storageWarning2" class="storage-warning">
         This browser is blocking local storage for files opened this way, so this squad won't be saved between visits here. It'll still work fine for the current session.
       </p>
@@ -1012,6 +1116,21 @@
         </div>
       </div>
 
+      <div class="transfer-panel">
+        <div class="transfer-panel-title">Transfers</div>
+        <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
+        <div class="transfer-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+            <select id="transferGW2"></select>
+          </label>
+          <select id="transferOut2"></select>
+          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <select id="transferIn2"></select>
+          <button id="addTransferBtn2" class="transfer-add-btn">+ Add transfer</button>
+        </div>
+        <div class="transfer-list" id="transferList2"></div>
+      </div>
+
       <div class="fixture-run-wrap" id="fixtureRunWrap2">
         <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
@@ -1024,13 +1143,17 @@
         </div>
         <div class="squad-empty" id="squadTableEmpty2">Add players to this squad above to see their fixture run here.</div>
       </div>
+      </div>
     </div>
 
     <div class="planner-instance" id="plannerRoot3">
       <div class="planner-instance-head">
         <span class="planner-instance-dot" style="background:#5fe3a3"></span>
         <h3 style="color:#5fe3a3">Squad C</h3>
+        <button id="minimiseBtn3" class="minimise-btn" title="Minimise squad" aria-expanded="true">&#9662;</button>
       </div>
+      <div class="planner-min-summary" id="plannerMinSummary3"></div>
+      <div class="planner-instance-content" id="plannerContent3">
       <p id="storageWarning3" class="storage-warning">
         This browser is blocking local storage for files opened this way, so this squad won't be saved between visits here. It'll still work fine for the current session.
       </p>
@@ -1074,6 +1197,21 @@
         </div>
       </div>
 
+      <div class="transfer-panel">
+        <div class="transfer-panel-title">Transfers</div>
+        <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
+        <div class="transfer-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+            <select id="transferGW3"></select>
+          </label>
+          <select id="transferOut3"></select>
+          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <select id="transferIn3"></select>
+          <button id="addTransferBtn3" class="transfer-add-btn">+ Add transfer</button>
+        </div>
+        <div class="transfer-list" id="transferList3"></div>
+      </div>
+
       <div class="fixture-run-wrap" id="fixtureRunWrap3">
         <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
@@ -1085,6 +1223,7 @@
           </table>
         </div>
         <div class="squad-empty" id="squadTableEmpty3">Add players to this squad above to see their fixture run here.</div>
+      </div>
       </div>
     </div>
   </div>
@@ -1422,6 +1561,31 @@ function createSquadPlanner(sfx){
   let pickerSortKey = 'total_points';
   let pickerSortDir = -1;
   let lineupState = {}; // { [gwNumber]: Set(playerIds currently STARTING that gw) }
+  let transfers = []; // [{seq, gw, outId, inId}] — effective from `gw` (inclusive) onward
+  let transferSeq = 1;
+  let minimised = false;
+  const plannerRootEl = document.getElementById('plannerRoot' + sfx);
+
+  // Squad membership (player ids) as of a given displayed gameweek, taking
+  // into account any transfers effective on or before that gameweek.
+  function squadIdsForGW(gwNum){
+    const ids = new Set(squadIds);
+    transfers
+      .filter(t => t.gw <= gwNum)
+      .sort((a,b) => (a.gw - b.gw) || (a.seq - b.seq))
+      .forEach(t => { ids.delete(t.outId); ids.add(t.inId); });
+    return ids;
+  }
+
+  // The 5 gameweeks (2nd–6th columns of the current displayed run) that a
+  // transfer can be scheduled against. GW1 of the run is locked — that's
+  // the starting squad itself.
+  function transferWindowGWs(){
+    const start = +startGWSel.value;
+    const gws = [];
+    for(let i=1; i<6; i++) gws.push(start + i);
+    return gws;
+  }
 
   // populate Start GW select (1..33, so a 6-week run always fits inside 38 GWs)
   const startGWSel = document.getElementById('squadStartGW' + sfx);
@@ -1458,7 +1622,9 @@ function createSquadPlanner(sfx){
         lineupState: Object.fromEntries(
           Object.entries(lineupState).map(([gw, set]) => [gw, [...set]])
         ),
-        startGW: startGWSel.value
+        startGW: startGWSel.value,
+        transfers: transfers.map(t => ({...t})),
+        minimised
       };
       localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(payload));
     }catch(e){
@@ -1484,14 +1650,32 @@ function createSquadPlanner(sfx){
       if(data.startGW){
         startGWSel.value = data.startGW;
       }
+      transfers = loadTransfersFromRaw(data.transfers);
+      if(typeof data.minimised === 'boolean') minimised = data.minimised;
     }catch(e){
       console.warn('Squad planner: could not load from localStorage', e);
     }
   }
 
+  // Validate a raw transfers array (from localStorage or a cloud profile)
+  // and reassign sequence numbers so ordering ties resolve deterministically.
+  function loadTransfersFromRaw(raw){
+    if(!Array.isArray(raw)) return [];
+    const clean = raw
+      .filter(t => t && Number.isFinite(+t.gw) && SQ_PLAYERS.some(p => p.id === t.outId) && SQ_PLAYERS.some(p => p.id === t.inId))
+      .map(t => ({ gw: +t.gw, outId: t.outId, inId: t.inId }));
+    transferSeq = 1;
+    return clean.map(t => ({...t, seq: transferSeq++}));
+  }
+
   function resetSquadState(){
     squadIds = new Set();
     lineupState = {};
+    transfers = [];
+    transferSeq = 1;
+    minimised = false;
+    if(plannerRootEl) plannerRootEl.classList.remove('minimised');
+    updateMinimiseBtn();
     startGWSel.value = 1;
     try{ localStorage.removeItem(PLANNER_STORAGE_KEY); }catch(e){}
     renderAll();
@@ -1682,6 +1866,8 @@ function createSquadPlanner(sfx){
         /* ---- apply result: squad + a matching optimal lineup for each GW ---- */
         squadIds = new Set(squad.map(p => p.id));
         lineupState = {};
+        transfers = [];
+        transferSeq = 1;
         gwRange.forEach(gw => {
           const starters = bestLineupForGW(squad, gw);
           lineupState[gw] = new Set(starters.map(x => x.p.id));
@@ -1863,6 +2049,8 @@ function createSquadPlanner(sfx){
     if(squadIds.has(id)){
       squadIds.delete(id);
       Object.values(lineupState).forEach(set => set.delete(id));
+      // any transfer touching this player (in or out) no longer makes sense
+      transfers = transfers.filter(t => t.outId !== id && t.inId !== id);
     } else {
       const c = squadCounts();
       if(c[p.element_type] >= QUOTA[p.element_type] || squadIds.size >= 15) return;
@@ -1872,9 +2060,12 @@ function createSquadPlanner(sfx){
     renderAll();
   }
 
-  // Sensible default XI: highest-scoring GK + next 10 highest-scoring outfield players.
-  function defaultStartSet(){
-    const squadPlayers = [...squadIds].map(id => SQ_PLAYERS.find(p => p.id === id)).filter(Boolean);
+  // Sensible default XI for a given gameweek's squad: highest-scoring GK +
+  // next 10 highest-scoring outfield players, among whoever is actually in
+  // the squad that gameweek (i.e. after any transfers effective by then).
+  function defaultStartSetForGW(gw){
+    const ids = squadIdsForGW(gw);
+    const squadPlayers = [...ids].map(id => SQ_PLAYERS.find(p => p.id === id)).filter(Boolean);
     const gks = squadPlayers.filter(p => p.element_type === 1).sort((a,b) => b.total_points - a.total_points);
     const outfield = squadPlayers.filter(p => p.element_type !== 1).sort((a,b) => b.total_points - a.total_points);
     const set = new Set();
@@ -1884,12 +2075,15 @@ function createSquadPlanner(sfx){
   }
 
   function isStarting(gw, id){
-    if(!lineupState[gw]) return defaultStartSet().has(id);
+    if(!squadIdsForGW(gw).has(id)) return false; // not on the books that gameweek
+    if(!lineupState[gw]) return defaultStartSetForGW(gw).has(id);
     return lineupState[gw].has(id);
   }
 
   function toggleLineup(gw, id){
-    if(!lineupState[gw]) lineupState[gw] = defaultStartSet();
+    const idsThisGW = squadIdsForGW(gw);
+    if(!idsThisGW.has(id)) return; // can't start/bench a player not in the squad that gameweek
+    if(!lineupState[gw]) lineupState[gw] = defaultStartSetForGW(gw);
     const set = lineupState[gw];
     const p = SQ_PLAYERS.find(pl => pl.id === id);
     if(!p) return;
@@ -1897,7 +2091,7 @@ function createSquadPlanner(sfx){
       set.delete(id);
     } else if(p.element_type === 1){
       // only one goalkeeper can start — bench any other starting GK first, then add this one
-      squadIds.forEach(otherId => {
+      idsThisGW.forEach(otherId => {
         const other = SQ_PLAYERS.find(pl => pl.id === otherId);
         if(other && other.element_type === 1 && otherId !== id) set.delete(otherId);
       });
@@ -1979,15 +2173,20 @@ function createSquadPlanner(sfx){
       headRow.appendChild(th);
     }
 
+    // Everyone who appears in the squad at any point across the displayed run —
+    // the base squad plus anyone brought in by a mid-run transfer.
+    const allIds = new Set(squadIds);
+    transfers.forEach(t => allIds.add(t.inId));
+
     const byPos = {1:[],2:[],3:[],4:[]};
-    squadIds.forEach(id => {
+    allIds.forEach(id => {
       const p = SQ_PLAYERS.find(pl => pl.id === id);
       if(p) byPos[p.element_type].push(p);
     });
 
     // Captain per displayed gameweek = the STARTING player with the highest
     // projected score that gameweek (their score counts twice in the total).
-    const squadPlayersList = [...squadIds].map(id => SQ_PLAYERS.find(pl => pl.id === id)).filter(Boolean);
+    const squadPlayersList = [...allIds].map(id => SQ_PLAYERS.find(pl => pl.id === id)).filter(Boolean);
     const captainIdByGwIndex = gwNums.map(gwNum => {
       let bestId = null, bestPts = -Infinity;
       squadPlayersList.forEach(p => {
@@ -2013,7 +2212,7 @@ function createSquadPlanner(sfx){
       divider.className = 'squad-pos-divider';
       const td = document.createElement('td');
       td.colSpan = 2 + runLen;
-      td.textContent = `${POS_LABEL[pos]} \u00b7 ${group.length}/${QUOTA[pos]}`;
+      td.textContent = `${POS_LABEL[pos]} \u00b7 ${group.length} shown`;
       divider.appendChild(td);
       frag.appendChild(divider);
 
@@ -2027,15 +2226,35 @@ function createSquadPlanner(sfx){
         tdPos.innerHTML = `<span class="pos-pill pos-${p.pos_short}">${p.pos_short}</span>`;
         tr.appendChild(tdPos);
 
+        const outEvent = transfers.find(t => t.outId === p.id);
+        const inEvent = transfers.find(t => t.inId === p.id);
+        const xferBadges =
+          (inEvent ? `<span class="xfer-tag in">IN GW${inEvent.gw}</span>` : '') +
+          (outEvent ? `<span class="xfer-tag out">OUT GW${outEvent.gw}</span>` : '');
+
         const tdPlayer = document.createElement('td');
         tdPlayer.className = 'sq-col-player';
-        tdPlayer.innerHTML = `${p.web_name}<span class="csub"><span style="color:${color}">${p.team_short}</span> &middot; £${p.now_cost.toFixed(1)}</span>`;
+        tdPlayer.innerHTML = `${p.web_name}<span class="csub"><span style="color:${color}">${p.team_short}</span> &middot; £${p.now_cost.toFixed(1)}</span>${xferBadges}`;
         tr.appendChild(tdPlayer);
 
         const team = TEAM_BY_ABBR[p.team_short];
         for(let i=0; i<runLen; i++){
           const gwIdx = start - 1 + i; // 0-indexed into fixtures array
           const gwNum = start + i;
+          const inSquadThisGW = squadIdsForGW(gwNum).has(p.id);
+
+          const td = document.createElement('td');
+
+          if(!inSquadThisGW){
+            td.className = 'sq-fx not-in-squad';
+            td.innerHTML = `<div class="pill" style="background:#1a1a16;color:#4a4632;">\u2014</div>`;
+            td.title = outEvent
+              ? `Transferred out from GW${outEvent.gw} \u00b7 not in this squad GW${gwNum}`
+              : `Joins the squad from GW${inEvent ? inEvent.gw : '?'} \u00b7 not in this squad yet GW${gwNum}`;
+            tr.appendChild(td);
+            continue;
+          }
+
           const starting = isStarting(gwNum, p.id);
           const pts = getPlayerPointsForGW(p, gwNum);
           const isCaptain = starting && captainIdByGwIndex[i] === p.id;
@@ -2044,7 +2263,6 @@ function createSquadPlanner(sfx){
             gwPointCounts[i]++;
             if(isCaptain) gwPointTotals[i] += pts; // captain's score counts twice
           }
-          const td = document.createElement('td');
           td.className = 'sq-fx' + (starting ? '' : ' benched');
           if(!team || gwIdx >= 38 || !team.fixtures[gwIdx]){
             td.innerHTML = `<div class="pill" style="background:#2a2a24;color:#6b6858;">\u2014</div>`;
@@ -2104,7 +2322,7 @@ function createSquadPlanner(sfx){
       td.className = 'sq-total-cell';
       if(gwPointCounts[i] > 0){
         td.textContent = gwPointTotals[i].toFixed(1);
-        const startCount = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSet().size;
+        const startCount = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSetForGW(gwNum).size;
         if(gwPointCounts[i] < startCount){
           td.title = `Projected total for the ${gwPointCounts[i]} starting player(s) with points data (of ${startCount} starters), captain\u2019s score counted twice \u2014 load Points Projections data above to cover the rest of the XI.`;
           td.classList.add('partial');
@@ -2154,17 +2372,125 @@ function createSquadPlanner(sfx){
 
     // fill in live starter counts per gameweek column
     gwNums.forEach(gwNum => {
-      const count = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSet().size;
+      const count = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSetForGW(gwNum).size;
       const el = headRow.querySelector(`.gw-start-count[data-gw="${gwNum}"]`);
       if(el) el.textContent = `${count}/11 start`;
     });
+  }
+
+  function renderTransferPanel(){
+    const gwSel = document.getElementById('transferGW' + sfx);
+    const outSel = document.getElementById('transferOut' + sfx);
+    const inSel = document.getElementById('transferIn' + sfx);
+    const addBtn = document.getElementById('addTransferBtn' + sfx);
+    const listEl = document.getElementById('transferList' + sfx);
+    if(!gwSel) return;
+
+    // "From" GW options: the 2nd–6th columns of the currently displayed run.
+    const windowGWs = transferWindowGWs();
+    const prevGW = gwSel.value ? +gwSel.value : null;
+    gwSel.innerHTML = windowGWs.map((g,i) => `<option value="${g}">GW${g} (wk ${i+2})</option>`).join('');
+    gwSel.value = windowGWs.includes(prevGW) ? prevGW : windowGWs[0];
+    const effGW = +gwSel.value;
+
+    // Squad as it stands right before this transfer takes effect.
+    const idsBefore = squadIdsForGW(effGW - 1);
+    const outCandidates = [...idsBefore]
+      .map(id => SQ_PLAYERS.find(p => p.id === id))
+      .filter(Boolean)
+      .sort((a,b) => a.element_type - b.element_type || b.total_points - a.total_points);
+
+    if(outCandidates.length === 0){
+      outSel.innerHTML = '<option value="">No squad yet</option>';
+      inSel.innerHTML = '<option value="">\u2014</option>';
+      addBtn.disabled = true;
+    } else {
+      const prevOut = outSel.value ? +outSel.value : null;
+      outSel.innerHTML = outCandidates.map(p => `<option value="${p.id}">${p.pos_short} \u00b7 ${p.web_name} (${p.team_short})</option>`).join('');
+      outSel.value = outCandidates.some(p => p.id === prevOut) ? prevOut : outCandidates[0].id;
+
+      const outPlayer = SQ_PLAYERS.find(p => p.id === +outSel.value);
+      const inCandidates = SQ_PLAYERS
+        .filter(p => p.element_type === outPlayer.element_type && !idsBefore.has(p.id))
+        .sort((a,b) => b.total_points - a.total_points);
+
+      if(inCandidates.length === 0){
+        inSel.innerHTML = '<option value="">No eligible replacement</option>';
+        addBtn.disabled = true;
+      } else {
+        const prevIn = inSel.value ? +inSel.value : null;
+        inSel.innerHTML = inCandidates.map(p => `<option value="${p.id}">${p.web_name} (${p.team_short}) \u00b7 \u00a3${p.now_cost.toFixed(1)}</option>`).join('');
+        inSel.value = inCandidates.some(p => p.id === prevIn) ? prevIn : inCandidates[0].id;
+        addBtn.disabled = false;
+      }
+    }
+
+    if(transfers.length === 0){
+      listEl.innerHTML = '<div class="transfer-empty">No transfers scheduled yet.</div>';
+    } else {
+      const sorted = [...transfers].sort((a,b) => (a.gw - b.gw) || (a.seq - b.seq));
+      listEl.innerHTML = sorted.map(t => {
+        const outP = SQ_PLAYERS.find(p => p.id === t.outId);
+        const inP = SQ_PLAYERS.find(p => p.id === t.inId);
+        return `<div class="transfer-chip">
+          <span class="tgw">GW${t.gw}</span>
+          <span class="tout">\u2212 ${outP ? outP.web_name : 'unknown'}</span>
+          <span class="tin">+ ${inP ? inP.web_name : 'unknown'}</span>
+          <span class="tremove" data-seq="${t.seq}" title="Remove this transfer">\u00d7</span>
+        </div>`;
+      }).join('');
+      listEl.querySelectorAll('.tremove').forEach(el => {
+        el.addEventListener('click', () => {
+          const seq = +el.dataset.seq;
+          transfers = transfers.filter(t => t.seq !== seq);
+          saveSquadState();
+          renderAll();
+        });
+      });
+    }
+  }
+
+  function updateMinimiseBtn(){
+    const btn = document.getElementById('minimiseBtn' + sfx);
+    if(!btn) return;
+    btn.setAttribute('aria-expanded', minimised ? 'false' : 'true');
+    btn.title = minimised ? 'Expand squad' : 'Minimise squad';
+  }
+
+  // Pulls the already-computed "Next 4 GW total" / "Next 6 GW total" rows out
+  // of the fixture table and mirrors them into the compact minimised summary bar.
+  function updateMinSummary(){
+    const bar = document.getElementById('plannerMinSummary' + sfx);
+    if(!bar) return;
+    const rows = document.querySelectorAll('#squadFixtureBody' + sfx + ' .squad-summary-row');
+    if(squadIds.size === 0 || rows.length === 0){
+      bar.innerHTML = '<span class="min-summary-empty">No squad selected yet.</span>';
+      return;
+    }
+    let html = '';
+    rows.forEach(tr => {
+      const label = tr.children[1] ? tr.children[1].textContent : '';
+      const val = tr.children[2] ? tr.children[2].textContent : '\u2014';
+      html += `<span class="min-summary-item"><b>${label}</b><span class="min-summary-val">${val}</span></span>`;
+    });
+    bar.innerHTML = html;
+  }
+
+  function setMinimised(next){
+    minimised = next;
+    if(plannerRootEl) plannerRootEl.classList.toggle('minimised', minimised);
+    updateMinimiseBtn();
+    updateMinSummary();
+    saveSquadState();
   }
 
   function renderAll(){
     renderQuotaSummary();
     renderPicker();
     renderSquadList();
+    renderTransferPanel();
     renderSquadFixtureTable();
+    updateMinSummary();
   }
 
   document.getElementById('squadSearch' + sfx).addEventListener('input', renderPicker);
@@ -2182,12 +2508,35 @@ function createSquadPlanner(sfx){
     if(parseFloat(maxSel.value) < parseFloat(minSel.value)) minSel.value = maxSel.value;
     renderPicker();
   });
-  startGWSel.addEventListener('change', () => { saveSquadState(); renderSquadFixtureTable(); });
+  startGWSel.addEventListener('change', () => { saveSquadState(); renderTransferPanel(); renderSquadFixtureTable(); updateMinSummary(); });
   document.getElementById('resetSquadBtn' + sfx).addEventListener('click', () => {
     if(confirm('Clear your entire squad and lineup choices? This cannot be undone.')){
       resetSquadState();
     }
   });
+
+  const minimiseBtnEl = document.getElementById('minimiseBtn' + sfx);
+  if(minimiseBtnEl){
+    minimiseBtnEl.addEventListener('click', () => setMinimised(!minimised));
+  }
+
+  const transferGWSel = document.getElementById('transferGW' + sfx);
+  const transferOutSel = document.getElementById('transferOut' + sfx);
+  const transferInSel = document.getElementById('transferIn' + sfx);
+  const addTransferBtnEl = document.getElementById('addTransferBtn' + sfx);
+  if(transferGWSel){
+    transferGWSel.addEventListener('change', renderTransferPanel);
+    transferOutSel.addEventListener('change', renderTransferPanel);
+    addTransferBtnEl.addEventListener('click', () => {
+      const gw = +transferGWSel.value;
+      const outId = +transferOutSel.value;
+      const inId = +transferInSel.value;
+      if(!gw || !outId || !inId) return;
+      transfers.push({seq: transferSeq++, gw, outId, inId});
+      saveSquadState();
+      renderAll();
+    });
+  }
   const optimiseBtnEl = document.getElementById('optimiseSquadBtn' + sfx);
   if(optimiseBtnEl){
     optimiseBtnEl.addEventListener('click', () => {
@@ -2200,6 +2549,8 @@ function createSquadPlanner(sfx){
   populatePriceFilters();
   renderPickerHead();
   loadSquadState();
+  if(plannerRootEl) plannerRootEl.classList.toggle('minimised', minimised);
+  updateMinimiseBtn();
   renderAll();
 
   return {
@@ -2217,7 +2568,8 @@ function createSquadPlanner(sfx){
         lineupState: Object.fromEntries(
           Object.entries(lineupState).map(([gw, set]) => [gw, [...set]])
         ),
-        startGW: startGWSel.value
+        startGW: startGWSel.value,
+        transfers: transfers.map(t => ({...t}))
       };
     },
     applyProfileState(data){
@@ -2233,6 +2585,7 @@ function createSquadPlanner(sfx){
         });
       }
       if(data.startGW) startGWSel.value = data.startGW;
+      transfers = loadTransfersFromRaw(data.transfers);
       saveSquadState();
       populateTeamFilter();
       populatePriceFilters();

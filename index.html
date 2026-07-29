@@ -340,6 +340,31 @@
     border-radius:2px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
   }
   .reset-squad-btn:hover{border-color:#F8696B;color:#F8696B;}
+  .cloud-sync-panel{
+    margin-top:18px;padding:16px 18px 18px;
+    border:1px solid #2f5a44;background:#101a15;border-radius:3px;
+  }
+  .cloud-sync-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+  .cloud-sync-head h3{
+    font-family:'JetBrains Mono',monospace;font-weight:800;font-size:15px;
+    letter-spacing:.03em;text-transform:uppercase;margin:0;
+  }
+  .cloud-sync-row{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;
+  }
+  .cloud-sync-row input[type="text"],
+  .cloud-sync-row input[type="password"]{
+    background:var(--panel-2);border:1px solid #3a3a32;color:var(--paper);
+    padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;
+    border-radius:2px;outline:none;
+  }
+  .cloud-sync-row input:focus{border-color:var(--green);}
+  .cloud-sync-row label{
+    display:flex;align-items:center;gap:6px;font-size:11px;color:#a8a292;
+    font-family:'JetBrains Mono',monospace;
+  }
+  #cloudSaveBtn, #cloudLoadBtn{border-color:#2f7a4a;color:var(--green);}
+  #cloudSaveBtn:hover, #cloudLoadBtn:hover{border-color:var(--green);background:#152018;}
   .refresh-btn{
     background:var(--panel-2);
     border:1px solid var(--amber-dim);
@@ -841,6 +866,31 @@
       </span>
       <button id="refreshAllBtn" class="refresh-btn">&#8635; Refresh live data (all 3 squads)</button>
       <span id="refreshAllStatus" class="refresh-status"></span>
+    </div>
+
+    <div class="cloud-sync-panel" id="cloudSyncPanel">
+      <div class="cloud-sync-head">
+        <span class="planner-instance-dot" style="background:var(--green)"></span>
+        <h3 style="color:var(--green)">Cloud Profile Sync</h3>
+      </div>
+      <p class="sub" style="margin:0 0 4px;">
+        Save all 3 squads, their lineups, and your watchlist to a <code>profile.json</code> file committed straight into this GitHub repo &mdash; then load them back from any machine, any browser. Needs a GitHub personal access token with write access to the repo; the token is kept only in this browser's local storage (or memory, if you uncheck "remember"), is never sent anywhere except api.github.com, and can be revoked any time from your <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:var(--amber)">GitHub token settings</a>.
+      </p>
+      <div class="cloud-sync-row">
+        <input type="text" id="cloudOwner" placeholder="owner" value="munozleonel" style="width:130px">
+        <input type="text" id="cloudRepo" placeholder="repo" value="myfpl" style="width:100px">
+        <input type="text" id="cloudBranch" placeholder="branch" value="main" style="width:80px">
+        <input type="text" id="cloudPath" placeholder="profile.json" value="profile.json" style="width:140px">
+      </div>
+      <div class="cloud-sync-row">
+        <input type="password" id="cloudToken" placeholder="&gt; github token (ghp_ / github_pat_)" autocomplete="off" style="width:300px">
+        <label><input type="checkbox" id="cloudRemember" checked> remember token on this device</label>
+      </div>
+      <div class="cloud-sync-row">
+        <button id="cloudSaveBtn" class="refresh-btn">&#9729; Save profile to GitHub</button>
+        <button id="cloudLoadBtn" class="refresh-btn">&#8681; Load profile from GitHub</button>
+        <span id="cloudSyncStatus" class="refresh-status"></span>
+      </div>
     </div>
 
     <div class="planner-instance" id="plannerRoot1">
@@ -1912,6 +1962,34 @@ function createSquadPlanner(sfx){
       populateTeamFilter();
       populatePriceFilters();
       renderAll();
+    },
+    // ---- Cloud Profile Sync hooks ----
+    getProfileState(){
+      return {
+        squadIds: [...squadIds],
+        lineupState: Object.fromEntries(
+          Object.entries(lineupState).map(([gw, set]) => [gw, [...set]])
+        ),
+        startGW: startGWSel.value
+      };
+    },
+    applyProfileState(data){
+      if(!data || typeof data !== 'object') return;
+      if(Array.isArray(data.squadIds)){
+        squadIds = new Set(data.squadIds.filter(id => SQ_PLAYERS.some(p => p.id === id)));
+      }
+      lineupState = {};
+      if(data.lineupState && typeof data.lineupState === 'object'){
+        Object.entries(data.lineupState).forEach(([gw, arr]) => {
+          if(!Array.isArray(arr)) return;
+          lineupState[gw] = new Set(arr.filter(id => squadIds.has(id)));
+        });
+      }
+      if(data.startGW) startGWSel.value = data.startGW;
+      saveSquadState();
+      populateTeamFilter();
+      populatePriceFilters();
+      renderAll();
     }
   };
 }
@@ -2535,6 +2613,223 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     publishPtsIndex();
   }
   renderPtsAll();
+
+  // ---- Cloud Profile Sync bridge ----
+  window.FPL_WATCHED_SYNC = {
+    get(){ return [...WATCHED]; },
+    set(arr){
+      WATCHED = new Set(Array.isArray(arr) ? arr : []);
+      saveWatched();
+      renderPtsAll();
+    }
+  };
+})();
+</script>
+
+<script>
+/* ==========================================================================
+   Cloud Profile Sync — save/load a profile.json (3 squads + watchlist)
+   straight to/from this GitHub repo via the GitHub Contents API, so the
+   same profile can be picked up from any machine/browser.
+   ========================================================================== */
+(function(){
+  const TOKEN_KEY = 'fplGithubToken_v1';
+  const CFG_KEY = 'fplGithubCfg_v1';
+
+  const els = {
+    owner: document.getElementById('cloudOwner'),
+    repo: document.getElementById('cloudRepo'),
+    branch: document.getElementById('cloudBranch'),
+    path: document.getElementById('cloudPath'),
+    token: document.getElementById('cloudToken'),
+    remember: document.getElementById('cloudRemember'),
+    saveBtn: document.getElementById('cloudSaveBtn'),
+    loadBtn: document.getElementById('cloudLoadBtn'),
+    status: document.getElementById('cloudSyncStatus'),
+  };
+  if(!els.owner || !els.saveBtn) return; // panel not present, bail quietly
+
+  function setStatus(msg, kind){
+    els.status.textContent = msg;
+    els.status.className = 'refresh-status' + (kind ? ' ' + kind : '');
+  }
+
+  // restore remembered config/token
+  try{
+    const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || 'null');
+    if(cfg){
+      if(cfg.owner) els.owner.value = cfg.owner;
+      if(cfg.repo) els.repo.value = cfg.repo;
+      if(cfg.branch) els.branch.value = cfg.branch;
+      if(cfg.path) els.path.value = cfg.path;
+    }
+    const savedToken = localStorage.getItem(TOKEN_KEY);
+    if(savedToken){ els.token.value = savedToken; }
+    else { els.remember.checked = false; }
+  }catch(e){ /* ignore */ }
+
+  function persistConfigIfRemembering(){
+    try{
+      localStorage.setItem(CFG_KEY, JSON.stringify({
+        owner: els.owner.value.trim(),
+        repo: els.repo.value.trim(),
+        branch: els.branch.value.trim(),
+        path: els.path.value.trim(),
+      }));
+      if(els.remember.checked && els.token.value.trim()){
+        localStorage.setItem(TOKEN_KEY, els.token.value.trim());
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    }catch(e){ /* ignore */ }
+  }
+
+  function apiUrl(){
+    const owner = els.owner.value.trim();
+    const repo = els.repo.value.trim();
+    const path = els.path.value.trim().replace(/^\/+/, '');
+    return `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+  }
+
+  function authHeaders(){
+    const token = els.token.value.trim();
+    return {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + token,
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+  }
+
+  // base64 helpers that survive UTF-8
+  function utf8ToB64(str){
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function b64ToUtf8(b64){
+    return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
+  }
+
+  function buildProfile(){
+    const squads = {};
+    PLANNER_INSTANCES.forEach((inst, i) => {
+      if(inst && typeof inst.getProfileState === 'function'){
+        squads[i + 1] = inst.getProfileState();
+      }
+    });
+    return {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      squads,
+      watched: (window.FPL_WATCHED_SYNC ? window.FPL_WATCHED_SYNC.get() : []),
+    };
+  }
+
+  function applyProfile(profile){
+    if(!profile || typeof profile !== 'object') throw new Error('profile.json is not a valid profile object.');
+    if(profile.squads){
+      PLANNER_INSTANCES.forEach((inst, i) => {
+        const state = profile.squads[i + 1] ?? profile.squads[String(i + 1)];
+        if(state && inst && typeof inst.applyProfileState === 'function'){
+          inst.applyProfileState(state);
+        }
+      });
+    }
+    if(Array.isArray(profile.watched) && window.FPL_WATCHED_SYNC){
+      window.FPL_WATCHED_SYNC.set(profile.watched);
+    }
+  }
+
+  function validateInputs(){
+    if(!els.owner.value.trim() || !els.repo.value.trim() || !els.path.value.trim()){
+      setStatus('Fill in owner, repo and path first.', 'err');
+      return false;
+    }
+    if(!els.token.value.trim()){
+      setStatus('A GitHub personal access token is required (repo write access).', 'err');
+      return false;
+    }
+    return true;
+  }
+
+  els.saveBtn.addEventListener('click', async () => {
+    if(!validateInputs()) return;
+    persistConfigIfRemembering();
+    els.saveBtn.disabled = true;
+    setStatus('Saving\u2026');
+    try{
+      const branch = els.branch.value.trim() || 'main';
+      const url = apiUrl();
+
+      // Look up the current file's SHA (if it exists) so this is an update, not a clobber-create.
+      let sha = null;
+      const getRes = await fetch(url + `?ref=${encodeURIComponent(branch)}`, { headers: authHeaders() });
+      if(getRes.status === 200){
+        const getData = await getRes.json();
+        sha = getData.sha || null;
+      } else if(getRes.status !== 404){
+        throw new Error(`Could not check existing file (HTTP ${getRes.status}).`);
+      }
+
+      const profile = buildProfile();
+      const body = {
+        message: `Update FPL profile \u2014 ${new Date().toISOString()}`,
+        content: utf8ToB64(JSON.stringify(profile, null, 2)),
+        branch,
+      };
+      if(sha) body.sha = sha;
+
+      const putRes = await fetch(url, {
+        method: 'PUT',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if(!putRes.ok){
+        const errBody = await putRes.json().catch(() => ({}));
+        throw new Error(errBody.message || `GitHub rejected the save (HTTP ${putRes.status}).`);
+      }
+      setStatus(`Saved to ${els.owner.value.trim()}/${els.repo.value.trim()}/${els.path.value.trim()} \u2713`, 'ok');
+    }catch(err){
+      console.error('Cloud profile save failed', err);
+      setStatus('Save failed: ' + err.message, 'err');
+    }
+    els.saveBtn.disabled = false;
+  });
+
+  els.loadBtn.addEventListener('click', async () => {
+    if(!validateInputs()) return;
+    persistConfigIfRemembering();
+    els.loadBtn.disabled = true;
+    setStatus('Loading\u2026');
+    try{
+      const branch = els.branch.value.trim() || 'main';
+      const url = apiUrl() + `?ref=${encodeURIComponent(branch)}`;
+      const res = await fetch(url, { headers: authHeaders() });
+      if(res.status === 404) throw new Error('No profile.json found in that repo/branch/path yet \u2014 save one first.');
+      if(!res.ok){
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.message || `GitHub returned HTTP ${res.status}.`);
+      }
+      const data = await res.json();
+      const json = b64ToUtf8(data.content);
+      const profile = JSON.parse(json);
+
+      if(!confirm('This will overwrite your 3 squads and watchlist in this browser with the version stored on GitHub. Continue?')) {
+        setStatus('Load cancelled.');
+        els.loadBtn.disabled = false;
+        return;
+      }
+      applyProfile(profile);
+      const when = profile.savedAt ? new Date(profile.savedAt).toLocaleString() : 'unknown time';
+      setStatus(`Loaded profile saved ${when} \u2713`, 'ok');
+    }catch(err){
+      console.error('Cloud profile load failed', err);
+      setStatus('Load failed: ' + err.message, 'err');
+    }
+    els.loadBtn.disabled = false;
+  });
+
+  [els.owner, els.repo, els.branch, els.path, els.token, els.remember].forEach(el => {
+    el.addEventListener('change', persistConfigIfRemembering);
+  });
 })();
 </script>
 

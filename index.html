@@ -338,8 +338,16 @@
   ::-webkit-scrollbar-thumb:hover{background:var(--amber-dim);}
 
   @media (max-width:640px){
-    .site-nav{padding:10px 14px 0;}
-    .site-nav a{padding:7px 12px;font-size:10.5px;}
+    .site-nav{padding:10px 14px 0;gap:6px;}
+    .site-nav-links{
+      flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;padding-bottom:2px;
+    }
+    .site-nav-links::-webkit-scrollbar{display:none;}
+    .site-nav a{padding:7px 12px;font-size:10.5px;white-space:nowrap;flex-shrink:0;}
+    .site-nav-sep{flex-shrink:0;}
+    .theme-toggle-btn{padding:7px 10px;font-size:10px;}
+    .theme-toggle-btn span:last-child{display:none;}
     .masthead{padding:20px 14px 14px;}
     h1{font-size:24px;}
     .sub{font-size:13px;}
@@ -366,14 +374,19 @@
 
   /* ---------- Site nav ---------- */
   .site-nav-wrap{
+    position:-webkit-sticky;
     position:sticky;top:0;z-index:200;
     background:var(--panel);
     border-bottom:1px solid var(--border-soft);
     box-shadow:0 6px 16px rgba(0,0,0,0.35);
+    width:100%;
   }
   .site-nav{
     max-width:1400px;margin:0 auto;padding:14px 20px 0;
-    display:flex;gap:8px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;
+    display:flex;align-items:flex-start;gap:8px;font-family:'JetBrains Mono',monospace;
+  }
+  .site-nav-links{
+    display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0;
   }
   .site-nav-sep{width:1px;align-self:stretch;background:var(--border);margin:6px 4px 0;}
   .site-nav a{
@@ -394,7 +407,7 @@
   .site-nav a:hover{color:var(--paper);}
 
   .theme-toggle-btn{
-    margin-left:auto;align-self:flex-start;
+    margin-left:auto;align-self:flex-start;flex-shrink:0;
     display:flex;align-items:center;gap:7px;
     background:var(--panel-2);border:1px solid var(--border);color:var(--text-soft);
     font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;
@@ -1029,13 +1042,15 @@
 
 <nav class="site-nav-wrap">
   <div class="site-nav">
-    <a href="#top" class="active">Home</a>
-    <a href="players.html">Players</a>
-    <span class="site-nav-sep"></span>
-    <a href="#plannerRoot1">Squad A</a>
-    <a href="#plannerRoot2">Squad B</a>
-    <a href="#plannerRoot3">Squad C</a>
-    <a href="#pointsProjections">FPL Points projections</a>
+    <div class="site-nav-links">
+      <a href="#top" class="active">Home</a>
+      <a href="players.html">Players</a>
+      <span class="site-nav-sep"></span>
+      <a href="#plannerRoot1">Squad A</a>
+      <a href="#plannerRoot2">Squad B</a>
+      <a href="#plannerRoot3">Squad C</a>
+      <a href="#pointsProjections">FPL Points projections</a>
+    </div>
     <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Switch colour theme" aria-label="Switch colour theme">
       <span id="themeToggleIcon">&#9790;</span><span id="themeToggleLabel">Dark</span>
     </button>

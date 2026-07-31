@@ -282,10 +282,17 @@
   }
 
   /* ---------- Site nav ---------- */
+  .site-nav-wrap{
+    position:sticky;top:0;z-index:200;
+    background:var(--panel);
+    border-bottom:1px solid #2a2a24;
+    box-shadow:0 6px 16px rgba(0,0,0,0.35);
+  }
   .site-nav{
     max-width:1400px;margin:0 auto;padding:14px 20px 0;
-    display:flex;gap:8px;font-family:'JetBrains Mono',monospace;
+    display:flex;gap:8px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;
   }
+  .site-nav-sep{width:1px;align-self:stretch;background:#3a3a32;margin:6px 4px 0;}
   .site-nav a{
     text-decoration:none;
     font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
@@ -302,6 +309,10 @@
     border-color:var(--amber-dim);
   }
   .site-nav a:hover{color:var(--paper);}
+
+  #plannerRoot1, #plannerRoot2, #plannerRoot3, #pointsProjections{
+    scroll-margin-top:64px;
+  }
 
   /* ---------- Squad planner section ---------- */
   .planner{
@@ -420,6 +431,36 @@
   .transfer-chip .tremove:hover{color:#F8696B;}
   .transfer-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6858;padding:2px 0;}
   .transfer-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6858;margin-top:8px;line-height:1.5;}
+
+  /* ---------- Chips panel ---------- */
+  .chip-panel{
+    margin-top:16px;padding:14px 16px 16px;
+    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+  }
+  .chip-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  .chip-btn{
+    display:flex;align-items:center;gap:6px;
+    background:var(--panel);border:1px solid #3a3a32;color:#cfcabc;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:8px 14px;border-radius:20px;
+    cursor:pointer;letter-spacing:.03em;transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .chip-btn:hover{border-color:#6b6858;}
+  .chip-btn.bb.active{background:#12281c;border-color:var(--green);color:var(--green);}
+  .chip-btn.tc.active{background:#2a1f10;border-color:var(--amber);color:var(--amber);}
+  .chip-active-note{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8a292;}
+  .chip-active-note.none{color:#6b6858;}
+  .chip-active-note .chip-clear{
+    margin-left:8px;color:#F8696B;cursor:pointer;text-decoration:underline;
+  }
+
+  .gw-chip-badge{
+    display:block;font-size:7px;font-weight:700;letter-spacing:.04em;margin-top:2px;
+    padding:1px 3px;border-radius:2px;
+  }
+  .gw-chip-badge.bb{background:#12281c;color:var(--green);}
+  .gw-chip-badge.tc{background:#2a1f10;color:var(--amber);}
+  td.sq-fx.bench-boost-active{box-shadow:inset 0 0 0 1px var(--green);}
+  td.sq-fx.bench-boost-active .bench-tag{background:var(--green);color:#0c1a12;}
 
   .sq-col-player .xfer-tag{
     display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.04em;
@@ -890,11 +931,18 @@
   }
 </style>
 </head>
-<body>
+<body id="top">
 
-<nav class="site-nav">
-  <a href="index.html" class="active">Fixtures</a>
-  <a href="players.html">Players</a>
+<nav class="site-nav-wrap">
+  <div class="site-nav">
+    <a href="#top" class="active">Home</a>
+    <a href="players.html">Players</a>
+    <span class="site-nav-sep"></span>
+    <a href="#plannerRoot1">Squad A</a>
+    <a href="#plannerRoot2">Squad B</a>
+    <a href="#plannerRoot3">Squad C</a>
+    <a href="#pointsProjections">FPL Points projections</a>
+  </div>
 </nav>
 
 <header class="masthead">
@@ -1050,6 +1098,19 @@
         <div class="transfer-list" id="transferList1"></div>
       </div>
 
+      <div class="chip-panel">
+        <div class="transfer-panel-title">Chips</div>
+        <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
+        <div class="chip-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+            <select id="chipGW1"></select>
+          </label>
+          <button type="button" id="chipBenchBtn1" class="chip-btn bb">Bench Boost</button>
+          <button type="button" id="chipCaptainBtn1" class="chip-btn tc">Triple Captain</button>
+        </div>
+        <div class="chip-active-note" id="chipActiveNote1"></div>
+      </div>
+
       <div class="fixture-run-wrap" id="fixtureRunWrap1">
         <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
@@ -1129,6 +1190,19 @@
           <button id="addTransferBtn2" class="transfer-add-btn">+ Add transfer</button>
         </div>
         <div class="transfer-list" id="transferList2"></div>
+      </div>
+
+      <div class="chip-panel">
+        <div class="transfer-panel-title">Chips</div>
+        <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
+        <div class="chip-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+            <select id="chipGW2"></select>
+          </label>
+          <button type="button" id="chipBenchBtn2" class="chip-btn bb">Bench Boost</button>
+          <button type="button" id="chipCaptainBtn2" class="chip-btn tc">Triple Captain</button>
+        </div>
+        <div class="chip-active-note" id="chipActiveNote2"></div>
       </div>
 
       <div class="fixture-run-wrap" id="fixtureRunWrap2">
@@ -1212,6 +1286,19 @@
         <div class="transfer-list" id="transferList3"></div>
       </div>
 
+      <div class="chip-panel">
+        <div class="transfer-panel-title">Chips</div>
+        <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
+        <div class="chip-row">
+          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+            <select id="chipGW3"></select>
+          </label>
+          <button type="button" id="chipBenchBtn3" class="chip-btn bb">Bench Boost</button>
+          <button type="button" id="chipCaptainBtn3" class="chip-btn tc">Triple Captain</button>
+        </div>
+        <div class="chip-active-note" id="chipActiveNote3"></div>
+      </div>
+
       <div class="fixture-run-wrap" id="fixtureRunWrap3">
         <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
@@ -1229,7 +1316,7 @@
   </div>
 </section>
 
-<section class="pts-section">
+<section class="pts-section" id="pointsProjections">
   <div class="pts-inner">
     <div class="eyebrow"><span class="dot"></span>PLAYER POINTS PROJECTIONS</div>
     <h2>FPL Points <span>Projections</span></h2>
@@ -1317,7 +1404,6 @@
       <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">To GW <select id="ptsLastGW"></select></label>
       <select id="ptsSortBy">
         <option value="total">Sort: Total points</option>
-        <option value="range">Sort: Points in range</option>
         <option value="price">Sort: Price</option>
         <option value="value">Sort: Value</option>
         <option value="name">Sort: Player name</option>
@@ -1564,7 +1650,16 @@ function createSquadPlanner(sfx){
   let transfers = []; // [{seq, gw, outId, inId}] — effective from `gw` (inclusive) onward
   let transferSeq = 1;
   let minimised = false;
+  let activeChip = null; // {type:'bench_boost'|'triple_captain', gw:number} or null — one chip, one gameweek
   const plannerRootEl = document.getElementById('plannerRoot' + sfx);
+
+  // All 6 gameweeks of the currently displayed run (chips can be played on any of them).
+  function fullWindowGWs(){
+    const start = +startGWSel.value;
+    const gws = [];
+    for(let i=0; i<6; i++) gws.push(start + i);
+    return gws;
+  }
 
   // Squad membership (player ids) as of a given displayed gameweek, taking
   // into account any transfers effective on or before that gameweek.
@@ -1624,7 +1719,8 @@ function createSquadPlanner(sfx){
         ),
         startGW: startGWSel.value,
         transfers: transfers.map(t => ({...t})),
-        minimised
+        minimised,
+        activeChip: activeChip ? {...activeChip} : null
       };
       localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(payload));
     }catch(e){
@@ -1652,6 +1748,7 @@ function createSquadPlanner(sfx){
       }
       transfers = loadTransfersFromRaw(data.transfers);
       if(typeof data.minimised === 'boolean') minimised = data.minimised;
+      activeChip = loadChipFromRaw(data.activeChip);
     }catch(e){
       console.warn('Squad planner: could not load from localStorage', e);
     }
@@ -1668,12 +1765,20 @@ function createSquadPlanner(sfx){
     return clean.map(t => ({...t, seq: transferSeq++}));
   }
 
+  function loadChipFromRaw(raw){
+    if(!raw || typeof raw !== 'object') return null;
+    if(raw.type !== 'bench_boost' && raw.type !== 'triple_captain') return null;
+    if(!Number.isFinite(+raw.gw)) return null;
+    return {type: raw.type, gw: +raw.gw};
+  }
+
   function resetSquadState(){
     squadIds = new Set();
     lineupState = {};
     transfers = [];
     transferSeq = 1;
     minimised = false;
+    activeChip = null;
     if(plannerRootEl) plannerRootEl.classList.remove('minimised');
     updateMinimiseBtn();
     startGWSel.value = 1;
@@ -1868,6 +1973,7 @@ function createSquadPlanner(sfx){
         lineupState = {};
         transfers = [];
         transferSeq = 1;
+        activeChip = null;
         gwRange.forEach(gw => {
           const starters = bestLineupForGW(squad, gw);
           lineupState[gw] = new Set(starters.map(x => x.p.id));
@@ -2169,7 +2275,11 @@ function createSquadPlanner(sfx){
       const gwNum = start + i;
       gwNums.push(gwNum);
       const th = document.createElement('th');
-      th.innerHTML = `GW${gwNum}<span class="gw-date">${DATA.gwDates[gwNum-1] || ''}</span><span class="gw-start-count" data-gw="${gwNum}"></span>`;
+      const chipHere = activeChip && activeChip.gw === gwNum;
+      const chipBadge = chipHere
+        ? `<span class="gw-chip-badge ${activeChip.type === 'bench_boost' ? 'bb' : 'tc'}">${activeChip.type === 'bench_boost' ? 'BENCH BOOST' : 'TRIPLE CAPTAIN'}</span>`
+        : '';
+      th.innerHTML = `GW${gwNum}<span class="gw-date">${DATA.gwDates[gwNum-1] || ''}</span><span class="gw-start-count" data-gw="${gwNum}"></span>${chipBadge}`;
       headRow.appendChild(th);
     }
 
@@ -2258,12 +2368,15 @@ function createSquadPlanner(sfx){
           const starting = isStarting(gwNum, p.id);
           const pts = getPlayerPointsForGW(p, gwNum);
           const isCaptain = starting && captainIdByGwIndex[i] === p.id;
-          if(starting && pts != null){
+          const benchBoostHere = !!(activeChip && activeChip.type === 'bench_boost' && activeChip.gw === gwNum);
+          const tripleCaptainHere = !!(activeChip && activeChip.type === 'triple_captain' && activeChip.gw === gwNum);
+          const countsTowardTotal = starting || benchBoostHere;
+          if(countsTowardTotal && pts != null){
             gwPointTotals[i] += pts;
             gwPointCounts[i]++;
-            if(isCaptain) gwPointTotals[i] += pts; // captain's score counts twice
+            if(isCaptain) gwPointTotals[i] += tripleCaptainHere ? pts * 2 : pts; // captain: double normally, triple with the chip
           }
-          td.className = 'sq-fx' + (starting ? '' : ' benched');
+          td.className = 'sq-fx' + (starting ? '' : ' benched') + (benchBoostHere && !starting ? ' bench-boost-active' : '');
           if(!team || gwIdx >= 38 || !team.fixtures[gwIdx]){
             td.innerHTML = `<div class="pill" style="background:#2a2a24;color:#6b6858;">\u2014</div>`;
           } else {
@@ -2275,7 +2388,8 @@ function createSquadPlanner(sfx){
             td.classList.add(isHome ? 'home' : 'away');
             td.title = `${opp.toUpperCase()} ${isHome ? '(H)' : '(A)'} \u00b7 difficulty ${rating}/20` +
               (pts != null ? ` \u00b7 ${pts.toFixed(2)} proj. pts` : '') +
-              (isCaptain ? ' \u00b7 CAPTAIN (counts twice)' : '') +
+              (isCaptain ? (tripleCaptainHere ? ' \u00b7 CAPTAIN (Triple Captain \u2014 counts 3\u00d7)' : ' \u00b7 CAPTAIN (counts twice)') : '') +
+              (benchBoostHere && !starting ? ' \u00b7 Bench Boost active \u2014 counts towards total' : '') +
               ` \u00b7 click to ${starting ? 'bench' : 'start'}`;
             const pill = document.createElement('div');
             pill.className = 'pill';
@@ -2287,13 +2401,13 @@ function createSquadPlanner(sfx){
             if(isCaptain){
               const capTag = document.createElement('span');
               capTag.className = 'captain-tag';
-              capTag.textContent = 'C';
+              capTag.textContent = tripleCaptainHere ? 'TC' : 'C';
               td.appendChild(capTag);
             }
             if(!starting){
               const tag = document.createElement('span');
               tag.className = 'bench-tag';
-              tag.textContent = 'B';
+              tag.textContent = benchBoostHere ? 'BB' : 'B';
               td.appendChild(tag);
             }
           }
@@ -2320,14 +2434,19 @@ function createSquadPlanner(sfx){
     gwNums.forEach((gwNum, i) => {
       const td = document.createElement('td');
       td.className = 'sq-total-cell';
+      const benchBoostHere = !!(activeChip && activeChip.type === 'bench_boost' && activeChip.gw === gwNum);
+      const tripleCaptainHere = !!(activeChip && activeChip.type === 'triple_captain' && activeChip.gw === gwNum);
+      const captainNote = tripleCaptainHere ? 'Triple Captain active \u2014 captain\u2019s score counted 3\u00d7' : 'captain\u2019s score counted twice';
       if(gwPointCounts[i] > 0){
         td.textContent = gwPointTotals[i].toFixed(1);
         const startCount = lineupState[gwNum] ? lineupState[gwNum].size : defaultStartSetForGW(gwNum).size;
-        if(gwPointCounts[i] < startCount){
-          td.title = `Projected total for the ${gwPointCounts[i]} starting player(s) with points data (of ${startCount} starters), captain\u2019s score counted twice \u2014 load Points Projections data above to cover the rest of the XI.`;
+        const basisCount = benchBoostHere ? squadIdsForGW(gwNum).size : startCount;
+        const basisLabel = benchBoostHere ? 'squad players (Bench Boost active)' : 'starting players';
+        if(gwPointCounts[i] < basisCount){
+          td.title = `Projected total for the ${gwPointCounts[i]} ${basisLabel.replace('squad players', 'player(s)')} with points data (of ${basisCount}), ${captainNote} \u2014 load Points Projections data above to cover the rest of the squad.`;
           td.classList.add('partial');
         } else {
-          td.title = `Projected total for all ${startCount} starting players this gameweek (captain\u2019s score counted twice).`;
+          td.title = `Projected total for all ${basisCount} ${basisLabel} this gameweek (${captainNote}).`;
         }
       } else {
         td.textContent = '\u2014';
@@ -2359,7 +2478,7 @@ function createSquadPlanner(sfx){
       tdVal.colSpan = runLen;
       if(countSum > 0){
         tdVal.textContent = total.toFixed(1) + ' pts';
-        tdVal.title = `Sum of the predicted XI points shown above across GW${span[0]}\u2013GW${span[span.length-1]} (captain\u2019s score counted twice each gameweek).`;
+        tdVal.title = `Sum of the predicted points shown above across GW${span[0]}\u2013GW${span[span.length-1]} (captain\u2019s score counted twice each gameweek, 3\u00d7 on a Triple Captain week; all 15 squad players count on a Bench Boost week).`;
       } else {
         tdVal.textContent = '\u2014';
         tdVal.title = 'Load Points Projections data above to see this total.';
@@ -2484,11 +2603,43 @@ function createSquadPlanner(sfx){
     saveSquadState();
   }
 
+  function renderChipPanel(){
+    const gwSel = document.getElementById('chipGW' + sfx);
+    const benchBtn = document.getElementById('chipBenchBtn' + sfx);
+    const tcBtn = document.getElementById('chipCaptainBtn' + sfx);
+    const note = document.getElementById('chipActiveNote' + sfx);
+    if(!gwSel) return;
+
+    const windowGWs = fullWindowGWs();
+    const prevGW = gwSel.value ? +gwSel.value : null;
+    gwSel.innerHTML = windowGWs.map((g,i) => `<option value="${g}">GW${g} (wk ${i+1})</option>`).join('');
+    gwSel.value = activeChip
+      ? activeChip.gw
+      : (windowGWs.includes(prevGW) ? prevGW : windowGWs[0]);
+
+    benchBtn.classList.toggle('active', !!(activeChip && activeChip.type === 'bench_boost'));
+    tcBtn.classList.toggle('active', !!(activeChip && activeChip.type === 'triple_captain'));
+
+    if(activeChip){
+      const label = activeChip.type === 'bench_boost' ? 'Bench Boost' : 'Triple Captain';
+      note.className = 'chip-active-note';
+      note.innerHTML = `<b style="color:${activeChip.type === 'bench_boost' ? 'var(--green)' : 'var(--amber)'}">${label}</b> active for GW${activeChip.gw}` +
+        (activeChip.type === 'bench_boost' ? ' \u2014 all 15 squad players count this week.' : ' \u2014 captain\u2019s score counts 3\u00d7 this week.') +
+        `<span class="chip-clear" id="chipClear${sfx}">Remove</span>`;
+      const clearEl = document.getElementById('chipClear' + sfx);
+      if(clearEl) clearEl.addEventListener('click', () => { activeChip = null; saveSquadState(); renderAll(); });
+    } else {
+      note.className = 'chip-active-note none';
+      note.textContent = 'No chip active for this squad this run.';
+    }
+  }
+
   function renderAll(){
     renderQuotaSummary();
     renderPicker();
     renderSquadList();
     renderTransferPanel();
+    renderChipPanel();
     renderSquadFixtureTable();
     updateMinSummary();
   }
@@ -2508,7 +2659,7 @@ function createSquadPlanner(sfx){
     if(parseFloat(maxSel.value) < parseFloat(minSel.value)) minSel.value = maxSel.value;
     renderPicker();
   });
-  startGWSel.addEventListener('change', () => { saveSquadState(); renderTransferPanel(); renderSquadFixtureTable(); updateMinSummary(); });
+  startGWSel.addEventListener('change', () => { saveSquadState(); renderTransferPanel(); renderChipPanel(); renderSquadFixtureTable(); updateMinSummary(); });
   document.getElementById('resetSquadBtn' + sfx).addEventListener('click', () => {
     if(confirm('Clear your entire squad and lineup choices? This cannot be undone.')){
       resetSquadState();
@@ -2545,6 +2696,36 @@ function createSquadPlanner(sfx){
     });
   }
 
+  const chipGWSel = document.getElementById('chipGW' + sfx);
+  const chipBenchBtnEl = document.getElementById('chipBenchBtn' + sfx);
+  const chipCaptainBtnEl = document.getElementById('chipCaptainBtn' + sfx);
+  if(chipGWSel){
+    chipGWSel.addEventListener('change', () => {
+      // moving the GW selector while a chip is active repositions that chip
+      if(activeChip){
+        activeChip = {...activeChip, gw: +chipGWSel.value};
+        saveSquadState();
+        renderAll();
+      } else {
+        renderChipPanel();
+      }
+    });
+    chipBenchBtnEl.addEventListener('click', () => {
+      activeChip = (activeChip && activeChip.type === 'bench_boost')
+        ? null
+        : {type: 'bench_boost', gw: +chipGWSel.value};
+      saveSquadState();
+      renderAll();
+    });
+    chipCaptainBtnEl.addEventListener('click', () => {
+      activeChip = (activeChip && activeChip.type === 'triple_captain')
+        ? null
+        : {type: 'triple_captain', gw: +chipGWSel.value};
+      saveSquadState();
+      renderAll();
+    });
+  }
+
   populateTeamFilter();
   populatePriceFilters();
   renderPickerHead();
@@ -2569,7 +2750,8 @@ function createSquadPlanner(sfx){
           Object.entries(lineupState).map(([gw, set]) => [gw, [...set]])
         ),
         startGW: startGWSel.value,
-        transfers: transfers.map(t => ({...t}))
+        transfers: transfers.map(t => ({...t})),
+        activeChip: activeChip ? {...activeChip} : null
       };
     },
     applyProfileState(data){
@@ -2586,6 +2768,7 @@ function createSquadPlanner(sfx){
       }
       if(data.startGW) startGWSel.value = data.startGW;
       transfers = loadTransfersFromRaw(data.transfers);
+      activeChip = loadChipFromRaw(data.activeChip);
       saveSquadState();
       populateTeamFilter();
       populatePriceFilters();
@@ -3180,8 +3363,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
       if(sortKey === 'name') return a.name.localeCompare(b.name);
       if(sortKey === 'price') return (b.price||0) - (a.price||0);
       if(sortKey === 'value') return (b.value||0) - (a.value||0);
-      if(sortKey === 'range') return b.rangeTotal - a.rangeTotal;
-      return (b.total||0) - (a.total||0);
+      return b.rangeTotal - a.rangeTotal;
     });
 
     // header
@@ -3190,7 +3372,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
       <th class="pts-col-team">Team</th>
       <th class="pts-col-pos">Pos</th>
       ${gwIdxs.map(i => `<th>GW${i+1}</th>`).join('')}
-      <th>Total</th><th>Price</th><th>Value</th>`;
+      <th title="Sum of the projections for the selected GW${lo}\u2013GW${hi} range">Total</th><th>Price</th><th>Value</th>`;
 
     // per-column min/max over the currently visible GW range (for color scale)
     let colMin = Infinity, colMax = -Infinity;
@@ -3230,7 +3412,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
         tr.appendChild(td);
       });
 
-      const tdTotal = document.createElement('td'); tdTotal.className='pts-val pts-extra'; tdTotal.textContent = (r.total||0).toFixed(1); tr.appendChild(tdTotal);
+      const tdTotal = document.createElement('td'); tdTotal.className='pts-val pts-extra'; tdTotal.textContent = (r.rangeTotal||0).toFixed(1); tdTotal.title = `Sum of GW${lo}\u2013GW${hi} projections`; tr.appendChild(tdTotal);
       const tdPrice = document.createElement('td'); tdPrice.className='pts-val pts-extra'; tdPrice.textContent = r.price!=null ? '\u00a3'+r.price.toFixed(1) : '\u2014'; tr.appendChild(tdPrice);
       const tdValue = document.createElement('td'); tdValue.className='pts-val pts-extra'; tdValue.textContent = r.value!=null ? r.value.toFixed(1) : '\u2014'; tr.appendChild(tdValue);
 

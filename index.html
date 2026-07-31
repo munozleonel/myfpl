@@ -6,6 +6,15 @@
 <title>FPL Fixture Planner · 2026/27</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  // Apply the saved theme before anything paints, so there's no flash of the wrong theme.
+  (function(){
+    try{
+      const saved = localStorage.getItem('fplTheme');
+      if(saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    }catch(e){}
+  })();
+</script>
 <style>
   :root{
     --paper:#EDE7D9;
@@ -17,6 +26,80 @@
     --rule:#c9c0a6;
     --panel:#0e0e0c;
     --panel-2:#1a1a16;
+
+    --border:#3a3a32;
+    --border-soft:#2a2a24;
+    --text-soft:#a8a292;
+    --text-softer:#8a8672;
+    --text-dim:#6b6858;
+    --text-bright:#c9c4b2;
+    --text-mid:#cfcabc;
+    --surface-3:#151511;
+    --surface-hover:#201f1a;
+    --surface-selected:#2a2410;
+    --green-dim:#2f7a4a;
+    --green-tint:#12281c;
+    --green-tint-2:#0d3a24;
+    --amber-tint:#2a1f10;
+    --amber-tint-2:#4a3a00;
+    --blue-tint:#0d2a3a;
+    --red-tint:#3a0d14;
+    --danger:#F8696B;
+    --danger-tint:#3a1a1a;
+    --gkp-text:#ffcf5c;
+    --def-text:#5fe3a3;
+    --mid-text:#6cc6ff;
+    --fwd-text:#ff8a8a;
+    --not-squad-bg:#1a1a16;
+    --not-squad-text:#4a4632;
+    --empty-cell-bg:#2a2a24;
+    --empty-cell-text:#6b6858;
+    --danger-border:#5a2020;
+    --success-border:#2f5a44;
+    --success-tint:#101a15;
+  }
+
+  html[data-theme="light"]{
+    --paper:#1a1a16;
+    --ink:#EDE7D9;
+    --ink-soft:#EDE7D9;
+    --amber:#B36B00;
+    --amber-dim:#D69A2D;
+    --green:#0F8A5C;
+    --rule:var(--text-softer);
+    --panel:#FAF7F0;
+    --panel-2:#FFFFFF;
+
+    --border:#d8d2bf;
+    --border-soft:#ece7d8;
+    --text-soft:#5f5e56;
+    --text-softer:#746f5e;
+    --text-dim:#8f8a76;
+    --text-bright:#2c2c28;
+    --text-mid:#423e30;
+    --surface-3:#F1ECDE;
+    --surface-hover:#F1ECDE;
+    --surface-selected:#FBEEDC;
+    --green-dim:#3f9468;
+    --green-tint:#E1F5EE;
+    --green-tint-2:#E1F5EE;
+    --amber-tint:#FAEEDA;
+    --amber-tint-2:#FAEEDA;
+    --blue-tint:#E6F1FB;
+    --red-tint:#FCEBEB;
+    --danger:#c94b3f;
+    --danger-tint:#FCEBEB;
+    --gkp-text:#8a6300;
+    --def-text:#0f6e56;
+    --mid-text:#185fa5;
+    --fwd-text:#a32d2d;
+    --not-squad-bg:#F1ECDE;
+    --not-squad-text:#b4b2a9;
+    --empty-cell-bg:#ece7d8;
+    --empty-cell-text:#8f8a76;
+    --danger-border:#e0aaa2;
+    --success-border:#8fcbaa;
+    --success-tint:#E1F5EE;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -63,7 +146,7 @@
   }
   h1 span{color:var(--amber);}
   .sub{
-    font-size:14px;color:#a8a292;max-width:620px;line-height:1.5;
+    font-size:14px;color:var(--text-soft);max-width:620px;line-height:1.5;
     font-family:'Inter',sans-serif;
   }
   .tape{
@@ -72,7 +155,7 @@
     font-size:11px;
     color:var(--amber-dim);
     letter-spacing:.08em;
-    border-top:1px solid #2a2a24;
+    border-top:1px solid var(--border-soft);
     padding-top:10px;
     display:flex;flex-wrap:wrap;gap:6px 18px;
   }
@@ -86,7 +169,7 @@
   }
   .search{
     background:var(--panel-2);
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     color:var(--paper);
     padding:9px 12px;
     font-family:'JetBrains Mono',monospace;
@@ -95,10 +178,10 @@
     width:220px;
     outline:none;
   }
-  .search::placeholder{color:#6b6858;}
+  .search::placeholder{color:var(--text-dim);}
   .search:focus{border-color:var(--amber);}
   .legend{
-    display:flex;gap:16px;font-size:11px;color:#a8a292;align-items:center;margin-left:auto;
+    display:flex;gap:16px;font-size:11px;color:var(--text-soft);align-items:center;margin-left:auto;
     letter-spacing:.03em;
   }
   .legend .k{
@@ -109,15 +192,15 @@
     font-size:10px;font-weight:700;text-align:center;line-height:18px;
     font-family:'JetBrains Mono',monospace;
   }
-  .swatch.home{background:#2f7a4a;color:#eafff2;}
-  .swatch.away{background:#3a3a32;color:#cfcabc;}
+  .swatch.home{background:var(--green-dim);color:#eafff2;}
+  .swatch.away{background:var(--border);color:var(--text-mid);}
   .scale-k{display:inline-flex;align-items:center;gap:6px;}
   .scale-bar{
     display:inline-block;width:120px;height:12px;border-radius:2px;
     background:linear-gradient(90deg, #5A8AC6, #FFFFFF, #F8696B);
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
   }
-  .scale-label{color:#8a8672;font-size:10px;}
+  .scale-label{color:var(--text-softer);font-size:10px;}
 
   /* ---------- Table wrap ---------- */
   .table-wrap{
@@ -127,7 +210,7 @@
   .grid-scroll{
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     background:var(--panel-2);
     border-radius:3px;
   }
@@ -138,8 +221,8 @@
   }
   thead th{
     position:sticky;top:0;z-index:3;
-    background:#151511;
-    color:#c9c4b2;
+    background:var(--surface-3);
+    color:var(--text-bright);
     font-size:11px;
     font-weight:600;
     letter-spacing:.05em;
@@ -149,12 +232,12 @@
     white-space:nowrap;
   }
   thead th .gw-date{
-    display:block;font-size:8.5px;color:#6b6858;font-weight:400;margin-top:2px;
+    display:block;font-size:8.5px;color:var(--text-dim);font-weight:400;margin-top:2px;
   }
   th.col-team, th.col-rank, th.col-abbr{
     text-align:left;
     position:sticky; left:0; z-index:4;
-    background:#151511;
+    background:var(--surface-3);
   }
   th.col-rank{ left:0; }
   th.col-team{ left:0; text-align:left; }
@@ -172,19 +255,19 @@
   tbody tr:nth-child(even) td.col-team,
   tbody tr:nth-child(even) td.col-rank,
   tbody tr:nth-child(even) td.col-abbr{
-    background:#201f1a;
+    background:var(--surface-hover);
   }
 
   tbody tr:hover td.col-team,
   tbody tr:hover td.col-rank,
   tbody tr:hover td.col-abbr{
-    background:#2a2820;
+    background:var(--surface-hover);
   }
 
   td{
     padding:0;
-    border-bottom:1px solid #2a2a24;
-    border-right:1px solid #232320;
+    border-bottom:1px solid var(--border-soft);
+    border-right:1px solid var(--border-soft);
     text-align:center;
     font-size:12px;
   }
@@ -193,7 +276,7 @@
     color:#5a5748;
     font-size:11px;
     padding:8px 4px;
-    border-right:1px solid #2a2a24;
+    border-right:1px solid var(--border-soft);
   }
   td.col-team{
     padding:8px 10px;
@@ -201,7 +284,7 @@
     font-weight:600;
     font-size:12.5px;
     color:var(--paper);
-    border-right:1px solid #2a2a24;
+    border-right:1px solid var(--border-soft);
     white-space:nowrap;
   }
   td.col-team .crest{
@@ -209,7 +292,7 @@
   }
   td.col-abbr{
     font-weight:700;
-    color:#8a8672;
+    color:var(--text-softer);
     font-size:11px;
     letter-spacing:.04em;
     border-right:2px solid var(--amber-dim);
@@ -245,13 +328,13 @@
   .footnote{
     max-width:1400px;margin:0 auto 60px;padding:0 20px;
     font-family:'JetBrains Mono',monospace;
-    font-size:11px;color:#6b6858;line-height:1.7;
+    font-size:11px;color:var(--text-dim);line-height:1.7;
   }
   .footnote a{color:var(--amber-dim);}
 
   ::-webkit-scrollbar{height:10px;width:10px;}
   ::-webkit-scrollbar-track{background:var(--panel);}
-  ::-webkit-scrollbar-thumb{background:#3a3a32;border-radius:5px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
   ::-webkit-scrollbar-thumb:hover{background:var(--amber-dim);}
 
   @media (max-width:640px){
@@ -285,30 +368,41 @@
   .site-nav-wrap{
     position:sticky;top:0;z-index:200;
     background:var(--panel);
-    border-bottom:1px solid #2a2a24;
+    border-bottom:1px solid var(--border-soft);
     box-shadow:0 6px 16px rgba(0,0,0,0.35);
   }
   .site-nav{
     max-width:1400px;margin:0 auto;padding:14px 20px 0;
     display:flex;gap:8px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;
   }
-  .site-nav-sep{width:1px;align-self:stretch;background:#3a3a32;margin:6px 4px 0;}
+  .site-nav-sep{width:1px;align-self:stretch;background:var(--border);margin:6px 4px 0;}
   .site-nav a{
     text-decoration:none;
     font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
-    color:#a8a292;
+    color:var(--text-soft);
     padding:8px 16px;
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     border-bottom:none;
     border-radius:3px 3px 0 0;
     background:var(--panel-2);
   }
   .site-nav a.active{
     color:var(--amber);
-    background:#151511;
+    background:var(--surface-3);
     border-color:var(--amber-dim);
   }
   .site-nav a:hover{color:var(--paper);}
+
+  .theme-toggle-btn{
+    margin-left:auto;align-self:flex-start;
+    display:flex;align-items:center;gap:7px;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-soft);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+    padding:8px 14px;border-radius:20px;cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .theme-toggle-btn:hover{border-color:var(--amber);color:var(--amber);}
+  #themeToggleIcon{font-size:13px;line-height:1;}
 
   #plannerRoot1, #plannerRoot2, #plannerRoot3, #pointsProjections{
     scroll-margin-top:64px;
@@ -332,13 +426,13 @@
   }
   .planner h2 span{color:var(--amber);}
   .planner-instance{
-    margin-top:30px;padding-top:24px;border-top:1px solid #2a2a24;
+    margin-top:30px;padding-top:24px;border-top:1px solid var(--border-soft);
   }
   .planner-instance:first-of-type{margin-top:22px;}
   .planner-instance-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
   .minimise-btn{
     margin-left:auto;
-    background:var(--panel-2);border:1px solid #3a3a32;color:#a8a292;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-soft);
     width:26px;height:26px;line-height:1;
     display:flex;align-items:center;justify-content:center;
     border-radius:2px;cursor:pointer;font-size:13px;
@@ -357,55 +451,55 @@
     flex-wrap:wrap;gap:10px 24px;align-items:center;
     font-family:'JetBrains Mono',monospace;
     padding:10px 14px;
-    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+    border:1px solid var(--border);background:var(--panel-2);border-radius:3px;
   }
   .planner-instance.minimised .planner-min-summary{display:flex;}
   .min-summary-item{display:flex;flex-direction:column;gap:2px;}
   .min-summary-item b{
-    font-size:10px;color:#8a8672;letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    font-size:10px;color:var(--text-softer);letter-spacing:.05em;text-transform:uppercase;font-weight:600;
   }
   .min-summary-item .min-summary-val{font-size:15px;color:var(--amber);font-weight:700;}
-  .min-summary-empty{font-size:11.5px;color:#6b6858;}
+  .min-summary-empty{font-size:11.5px;color:var(--text-dim);}
   .planner-instance-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
   .planner-instance-head h3{
     font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px;
     letter-spacing:.03em;text-transform:uppercase;margin:0;
   }
   .storage-warning{
-    display:none;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#F8696B;
-    border:1px solid #5a2020;background:#2a1414;padding:8px 12px;border-radius:2px;margin:0 0 12px;
+    display:none;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--danger);
+    border:1px solid var(--danger-border);background:var(--danger-tint);padding:8px 12px;border-radius:2px;margin:0 0 12px;
   }
   .reset-squad-btn{
-    background:var(--panel-2);border:1px solid #3a3a32;color:#a8a292;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-soft);
     font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;
     border-radius:2px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
   }
-  .reset-squad-btn:hover{border-color:#F8696B;color:#F8696B;}
+  .reset-squad-btn:hover{border-color:var(--danger);color:var(--danger);}
   .optimise-btn{
-    background:var(--panel-2);border:1px solid #2f7a4a;color:var(--green);
+    background:var(--panel-2);border:1px solid var(--green-dim);color:var(--green);
     font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;
     border-radius:2px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
   }
-  .optimise-btn:hover{border-color:var(--green);background:#152018;}
+  .optimise-btn:hover{border-color:var(--green);background:var(--green-tint);}
   .optimise-btn:disabled{opacity:.5;cursor:wait;}
 
   /* ---------- Transfers panel ---------- */
   .transfer-panel{
     margin-top:16px;padding:14px 16px 16px;
-    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+    border:1px solid var(--border);background:var(--panel-2);border-radius:3px;
   }
   .transfer-panel-title{
     font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-    color:#c9c4b2;margin-bottom:4px;
+    color:var(--text-bright);margin-bottom:4px;
   }
   .transfer-panel-sub{
-    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b6858;margin:0 0 10px;line-height:1.5;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-dim);margin:0 0 10px;line-height:1.5;
   }
   .transfer-row{
     display:flex;flex-wrap:wrap;gap:8px;align-items:center;
   }
   .transfer-row select{
-    background:var(--panel);border:1px solid #3a3a32;color:var(--paper);
+    background:var(--panel);border:1px solid var(--border);color:var(--paper);
     padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:2px;outline:none;
   }
   .transfer-row select:focus{border-color:var(--amber);}
@@ -414,51 +508,51 @@
     font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 12px;border-radius:2px;
     cursor:pointer;letter-spacing:.05em;text-transform:uppercase;
   }
-  .transfer-add-btn:hover{border-color:var(--amber);background:#201f19;}
+  .transfer-add-btn:hover{border-color:var(--amber);background:var(--surface-hover);}
   .transfer-add-btn:disabled{opacity:.4;cursor:not-allowed;}
   .transfer-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
   .transfer-chip{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#cfcabc;
-    background:var(--panel);border:1px solid #2a2a24;border-radius:2px;padding:6px 10px;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-mid);
+    background:var(--panel);border:1px solid var(--border-soft);border-radius:2px;padding:6px 10px;
   }
   .transfer-chip .tgw{color:var(--amber);font-weight:700;min-width:40px;}
-  .transfer-chip .tout{color:#F8696B;}
+  .transfer-chip .tout{color:var(--danger);}
   .transfer-chip .tin{color:var(--green);}
   .transfer-chip .tremove{
-    margin-left:auto;cursor:pointer;color:#6b6858;font-weight:700;padding:0 4px;
+    margin-left:auto;cursor:pointer;color:var(--text-dim);font-weight:700;padding:0 4px;
   }
-  .transfer-chip .tremove:hover{color:#F8696B;}
-  .transfer-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6858;padding:2px 0;}
-  .transfer-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6858;margin-top:8px;line-height:1.5;}
+  .transfer-chip .tremove:hover{color:var(--danger);}
+  .transfer-empty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);padding:2px 0;}
+  .transfer-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
 
   /* ---------- Chips panel ---------- */
   .chip-panel{
     margin-top:16px;padding:14px 16px 16px;
-    border:1px solid #3a3a32;background:var(--panel-2);border-radius:3px;
+    border:1px solid var(--border);background:var(--panel-2);border-radius:3px;
   }
   .chip-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
   .chip-btn{
     display:flex;align-items:center;gap:6px;
-    background:var(--panel);border:1px solid #3a3a32;color:#cfcabc;
+    background:var(--panel);border:1px solid var(--border);color:var(--text-mid);
     font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:8px 14px;border-radius:20px;
     cursor:pointer;letter-spacing:.03em;transition:border-color .15s ease, background .15s ease, color .15s ease;
   }
-  .chip-btn:hover{border-color:#6b6858;}
-  .chip-btn.bb.active{background:#12281c;border-color:var(--green);color:var(--green);}
-  .chip-btn.tc.active{background:#2a1f10;border-color:var(--amber);color:var(--amber);}
-  .chip-active-note{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8a292;}
-  .chip-active-note.none{color:#6b6858;}
+  .chip-btn:hover{border-color:var(--text-dim);}
+  .chip-btn.bb.active{background:var(--green-tint);border-color:var(--green);color:var(--green);}
+  .chip-btn.tc.active{background:var(--amber-tint);border-color:var(--amber);color:var(--amber);}
+  .chip-active-note{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-soft);}
+  .chip-active-note.none{color:var(--text-dim);}
   .chip-active-note .chip-clear{
-    margin-left:8px;color:#F8696B;cursor:pointer;text-decoration:underline;
+    margin-left:8px;color:var(--danger);cursor:pointer;text-decoration:underline;
   }
 
   .gw-chip-badge{
     display:block;font-size:7px;font-weight:700;letter-spacing:.04em;margin-top:2px;
     padding:1px 3px;border-radius:2px;
   }
-  .gw-chip-badge.bb{background:#12281c;color:var(--green);}
-  .gw-chip-badge.tc{background:#2a1f10;color:var(--amber);}
+  .gw-chip-badge.bb{background:var(--green-tint);color:var(--green);}
+  .gw-chip-badge.tc{background:var(--amber-tint);color:var(--amber);}
   td.sq-fx.bench-boost-active{box-shadow:inset 0 0 0 1px var(--green);}
   td.sq-fx.bench-boost-active .bench-tag{background:var(--green);color:#0c1a12;}
 
@@ -466,13 +560,13 @@
     display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.04em;
     padding:1px 4px;border-radius:2px;margin-left:6px;vertical-align:middle;
   }
-  .sq-col-player .xfer-tag.out{background:#3a1a1a;color:#F8696B;}
-  .sq-col-player .xfer-tag.in{background:#12281c;color:var(--green);}
+  .sq-col-player .xfer-tag.out{background:var(--danger-tint);color:var(--danger);}
+  .sq-col-player .xfer-tag.in{background:var(--green-tint);color:var(--green);}
   td.sq-fx.not-in-squad{cursor:default;}
   td.sq-fx.not-in-squad .pill{opacity:.4;}
   .cloud-sync-panel{
     margin-top:18px;padding:16px 18px 18px;
-    border:1px solid #2f5a44;background:#101a15;border-radius:3px;
+    border:1px solid var(--success-border);background:var(--success-tint);border-radius:3px;
   }
   .cloud-sync-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
   .cloud-sync-head h3{
@@ -484,17 +578,17 @@
   }
   .cloud-sync-row input[type="text"],
   .cloud-sync-row input[type="password"]{
-    background:var(--panel-2);border:1px solid #3a3a32;color:var(--paper);
+    background:var(--panel-2);border:1px solid var(--border);color:var(--paper);
     padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;
     border-radius:2px;outline:none;
   }
   .cloud-sync-row input:focus{border-color:var(--green);}
   .cloud-sync-row label{
-    display:flex;align-items:center;gap:6px;font-size:11px;color:#a8a292;
+    display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-soft);
     font-family:'JetBrains Mono',monospace;
   }
-  #cloudSaveBtn, #cloudLoadBtn{border-color:#2f7a4a;color:var(--green);}
-  #cloudSaveBtn:hover, #cloudLoadBtn:hover{border-color:var(--green);background:#152018;}
+  #cloudSaveBtn, #cloudLoadBtn{border-color:var(--green-dim);color:var(--green);}
+  #cloudSaveBtn:hover, #cloudLoadBtn:hover{border-color:var(--green);background:var(--green-tint);}
   .refresh-btn{
     background:var(--panel-2);
     border:1px solid var(--amber-dim);
@@ -506,11 +600,11 @@
     border-radius:2px;
     cursor:pointer;
   }
-  .refresh-btn:hover{border-color:var(--amber);background:#201f19;}
+  .refresh-btn:hover{border-color:var(--amber);background:var(--surface-hover);}
   .refresh-btn:disabled{opacity:.5;cursor:wait;}
-  .refresh-status{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;color:#8a8672;}
+  .refresh-status{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;color:var(--text-softer);}
   .refresh-status.ok{color:var(--green);}
-  .refresh-status.err{color:#F8696B;}
+  .refresh-status.err{color:var(--danger);}
   .planner-controls{
     margin-top:18px;
     display:flex;flex-wrap:wrap;gap:10px;align-items:center;
@@ -518,7 +612,7 @@
   }
   .planner-controls select{
     background:var(--panel-2);
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     color:var(--paper);
     padding:8px 10px;
     font-family:'JetBrains Mono',monospace;
@@ -529,7 +623,7 @@
   .planner-controls select:focus{border-color:var(--amber);}
   .planner-controls select[id^="teamFilter"], .planner-controls select[id^="posFilter"]{
     background:var(--panel-2);
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     color:var(--paper);
     padding:8px 10px;
     font-family:'JetBrains Mono',monospace;
@@ -539,7 +633,7 @@
   }
   .quota-summary{
     margin-left:auto;
-    font-size:11.5px;color:#a8a292;letter-spacing:.03em;
+    font-size:11.5px;color:var(--text-soft);letter-spacing:.03em;
     display:flex;gap:14px;
   }
   .quota-summary b{color:var(--paper);}
@@ -574,43 +668,43 @@
   }
 
   .picker-panel, .squad-panel{
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     background:var(--panel-2);
     border-radius:3px;
   }
   .panel-title{
     font-family:'JetBrains Mono',monospace;
     font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-    color:#8a8672;
+    color:var(--text-softer);
     padding:10px 12px;
-    border-bottom:1px solid #2a2a24;
+    border-bottom:1px solid var(--border-soft);
   }
 
   .picker-table-wrap{max-height:440px;overflow:auto;-webkit-overflow-scrolling:touch;}
   table.picker-table{border-collapse:collapse;width:100%;font-family:'JetBrains Mono',monospace;}
   table.picker-table thead th{
-    position:sticky;top:0;z-index:2;background:#151511;color:#c9c4b2;
+    position:sticky;top:0;z-index:2;background:var(--surface-3);color:var(--text-bright);
     font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:8px 6px;
     border-bottom:2px solid var(--amber-dim);text-align:right;white-space:nowrap;
     cursor:pointer;user-select:none;
   }
   table.picker-table thead th:hover{color:var(--amber);}
-  table.picker-table thead th.pk-col-player{text-align:left;position:sticky;left:0;z-index:3;background:#151511;}
+  table.picker-table thead th.pk-col-player{text-align:left;position:sticky;left:0;z-index:3;background:var(--surface-3);}
   table.picker-table thead th .arrow{font-size:8px;color:var(--amber);margin-left:2px;}
   table.picker-table tbody td{
-    padding:6px;border-bottom:1px solid #232320;font-size:11.5px;text-align:right;white-space:nowrap;
+    padding:6px;border-bottom:1px solid var(--border-soft);font-size:11.5px;text-align:right;white-space:nowrap;
   }
   table.picker-table tbody tr{cursor:pointer;}
-  table.picker-table tbody tr:hover{background:#201f1a;}
-  table.picker-table tbody tr.selected{background:#2a2410;}
+  table.picker-table tbody tr:hover{background:var(--surface-hover);}
+  table.picker-table tbody tr.selected{background:var(--surface-selected);}
   table.picker-table tbody tr.disabled{opacity:.35;cursor:not-allowed;}
   td.pk-col-player{
     text-align:left;position:sticky;left:0;z-index:1;background:var(--panel-2);
     font-family:'Inter',sans-serif;font-weight:600;color:var(--paper);
   }
-  tbody tr:nth-child(even) td.pk-col-player{background:#201f1a;}
-  tbody tr.selected td.pk-col-player{background:#2a2410;}
-  td.pk-col-player .full{display:block;font-size:9.5px;font-weight:400;color:#8a8672;}
+  tbody tr:nth-child(even) td.pk-col-player{background:var(--surface-hover);}
+  tbody tr.selected td.pk-col-player{background:var(--surface-selected);}
+  td.pk-col-player .full{display:block;font-size:9.5px;font-weight:400;color:var(--text-softer);}
   td.pk-col-team{text-align:left;font-weight:700;letter-spacing:.03em;}
   .pos-pill{
     display:inline-block;font-size:9.5px;font-weight:700;
@@ -618,61 +712,61 @@
     font-family:'JetBrains Mono',monospace;
     min-width:30px;text-align:center;
   }
-  .pos-GKP{background:#4a3a00;color:#ffcf5c;}
-  .pos-DEF{background:#0d3a24;color:#5fe3a3;}
-  .pos-MID{background:#0d2a3a;color:#6cc6ff;}
-  .pos-FWD{background:#3a0d14;color:#ff8a8a;}
+  .pos-GKP{background:var(--amber-tint-2);color:var(--gkp-text);}
+  .pos-DEF{background:var(--green-tint-2);color:var(--def-text);}
+  .pos-MID{background:var(--blue-tint);color:var(--mid-text);}
+  .pos-FWD{background:var(--red-tint);color:var(--fwd-text);}
   td.pk-price{color:var(--amber);font-weight:700;}
   td.pk-points{color:var(--paper);font-weight:700;}
   .pk-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle;}
   .pk-status-a{background:var(--green);}
   .pk-status-d{background:var(--amber);}
-  .pk-status-i,.pk-status-s,.pk-status-u,.pk-status-n{background:#F8696B;}
+  .pk-status-i,.pk-status-s,.pk-status-u,.pk-status-n{background:var(--danger);}
   td.pk-add{font-size:15px;color:var(--green);text-align:center;width:16px;}
-  tr.selected td.pk-add{color:#F8696B;}
+  tr.selected td.pk-add{color:var(--danger);}
 
   .squad-list{padding:10px 12px;}
   .squad-group{margin-bottom:12px;}
   .squad-group-title{
     font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;
-    color:#8a8672;margin-bottom:6px;text-transform:uppercase;
+    color:var(--text-softer);margin-bottom:6px;text-transform:uppercase;
   }
   .squad-chip{
     display:flex;align-items:center;gap:8px;
     padding:6px 4px;font-family:'Inter',sans-serif;font-size:12.5px;
-    border-bottom:1px solid #232320;
+    border-bottom:1px solid var(--border-soft);
   }
   .squad-chip .cname{flex:1;color:var(--paper);font-weight:500;}
-  .squad-chip .cteam{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a8672;}
+  .squad-chip .cteam{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-softer);}
   .squad-chip .cprice{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--amber);min-width:34px;text-align:right;}
   .squad-chip .cremove{
-    font-family:'JetBrains Mono',monospace;color:#F8696B;cursor:pointer;font-size:14px;padding:0 4px;
+    font-family:'JetBrains Mono',monospace;color:var(--danger);cursor:pointer;font-size:14px;padding:0 4px;
   }
-  .squad-empty{padding:20px 12px;color:#6b6858;font-size:12px;font-family:'JetBrains Mono',monospace;text-align:center;}
+  .squad-empty{padding:20px 12px;color:var(--text-dim);font-size:12px;font-family:'JetBrains Mono',monospace;text-align:center;}
 
   .fixture-run-wrap{margin-top:22px;}
   .fixture-run-wrap .grid-scroll{max-height:none;}
   table.squad-table{border-collapse:collapse;width:100%;font-family:'JetBrains Mono',monospace;}
   table.squad-table thead th{
-    position:sticky;top:0;z-index:3;background:#151511;color:#c9c4b2;
+    position:sticky;top:0;z-index:3;background:var(--surface-3);color:var(--text-bright);
     font-size:11px;font-weight:600;letter-spacing:.05em;padding:8px 6px;
     border-bottom:2px solid var(--amber-dim);text-align:center;white-space:nowrap;
   }
-  table.squad-table thead th .gw-date{display:block;font-size:8.5px;color:#6b6858;font-weight:400;margin-top:2px;}
+  table.squad-table thead th .gw-date{display:block;font-size:8.5px;color:var(--text-dim);font-weight:400;margin-top:2px;}
   table.squad-table thead th .gw-start-count{display:block;font-size:8px;color:var(--green);font-weight:600;margin-top:2px;letter-spacing:.03em;}
-  th.sq-col-pos{text-align:left;position:sticky;left:0;z-index:4;background:#151511;width:44px;min-width:44px;}
-  th.sq-col-player{text-align:left;position:sticky;left:44px;z-index:4;background:#151511;width:180px;min-width:180px;}
+  th.sq-col-pos{text-align:left;position:sticky;left:0;z-index:4;background:var(--surface-3);width:44px;min-width:44px;}
+  th.sq-col-player{text-align:left;position:sticky;left:44px;z-index:4;background:var(--surface-3);width:180px;min-width:180px;}
   td.sq-col-pos, td.sq-col-player{position:sticky;z-index:2;background:var(--panel-2);}
-  td.sq-col-pos{left:0;width:44px;min-width:44px;padding:8px 6px;border-right:1px solid #2a2a24;}
+  td.sq-col-pos{left:0;width:44px;min-width:44px;padding:8px 6px;border-right:1px solid var(--border-soft);}
   td.sq-col-player{
     left:44px;width:180px;min-width:180px;padding:8px 10px;
     font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;color:var(--paper);
     border-right:2px solid var(--amber-dim);white-space:nowrap;
   }
-  td.sq-col-player .csub{display:block;font-size:10px;font-weight:400;color:#8a8672;font-family:'JetBrains Mono',monospace;}
+  td.sq-col-player .csub{display:block;font-size:10px;font-weight:400;color:var(--text-softer);font-family:'JetBrains Mono',monospace;}
   tbody tr.squad-row:nth-child(even) td.sq-col-pos,
-  tbody tr.squad-row:nth-child(even) td.sq-col-player{background:#201f1a;}
-  td.sq-fx{min-width:52px;height:46px;padding:0;border-bottom:1px solid #2a2a24;border-right:1px solid #232320;cursor:pointer;position:relative;}
+  tbody tr.squad-row:nth-child(even) td.sq-col-player{background:var(--surface-hover);}
+  td.sq-fx{min-width:52px;height:46px;padding:0;border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);cursor:pointer;position:relative;}
   td.sq-fx:hover .pill{outline:1px solid var(--amber);outline-offset:-1px;}
   td.sq-fx .pill{
     display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;
@@ -703,11 +797,11 @@
   .bench-tag{
     position:absolute;top:1px;right:2px;
     font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;
-    color:#F8696B;letter-spacing:.05em;z-index:1;
+    color:var(--danger);letter-spacing:.05em;z-index:1;
   }
   tr.squad-row.all-benched td.sq-col-player{opacity:.55;}
   tr.squad-pos-divider td{
-    background:#151511 !important;color:#8a8672;font-size:10px;letter-spacing:.08em;
+    background:var(--surface-3) !important;color:var(--text-softer);font-size:10px;letter-spacing:.08em;
     text-transform:uppercase;padding:5px 10px;border-right:none !important;
   }
   tr.squad-total-row{border-top:2px solid var(--amber-dim);}
@@ -718,18 +812,18 @@
   }
   td.sq-total-cell{
     text-align:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:13px;
-    color:var(--green);background:#151a15;border-bottom:1px solid #2a2a24;border-right:1px solid #232320;
+    color:var(--green);background:#151a15;border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);
   }
   td.sq-total-cell.partial{color:var(--amber);}
 
   tr.squad-summary-row td.sq-col-pos,
   tr.squad-summary-row td.sq-col-player{
-    background:#171712 !important;color:#a8a292;font-weight:600;
+    background:var(--surface-3) !important;color:var(--text-soft);font-weight:600;
     font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.03em;
   }
   td.sq-summary-cell{
     text-align:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;
-    color:var(--paper);background:#171712;border-bottom:1px solid #2a2a24;letter-spacing:.03em;
+    color:var(--paper);background:var(--surface-3);border-bottom:1px solid var(--border-soft);letter-spacing:.03em;
   }
   tr.squad-summary-row:last-child td{border-bottom:2px solid var(--amber-dim);}
 
@@ -786,7 +880,7 @@
 
   .pts-source{
     margin-top:20px;
-    border:1px solid #3a3a32;
+    border:1px solid var(--border);
     background:var(--panel-2);
     border-radius:3px;
     padding:16px 18px;
@@ -796,21 +890,21 @@
     margin-bottom:14px;flex-wrap:wrap;
   }
   .pts-tab{
-    background:var(--panel);border:1px solid #3a3a32;color:#a8a292;
+    background:var(--panel);border:1px solid var(--border);color:var(--text-soft);
     font-size:11px;letter-spacing:.06em;text-transform:uppercase;
     padding:8px 14px;border-radius:2px;cursor:pointer;
   }
-  .pts-tab.active{color:var(--amber);border-color:var(--amber-dim);background:#201f19;}
+  .pts-tab.active{color:var(--amber);border-color:var(--amber-dim);background:var(--surface-hover);}
   .pts-tab-panel{display:none;}
   .pts-tab-panel.active{display:block;}
 
   .pts-field-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;font-family:'JetBrains Mono',monospace;}
   .pts-field{display:flex;flex-direction:column;gap:4px;}
-  .pts-field label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#8a8672;}
+  .pts-field label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-softer);}
   .pts-field input[type="text"],
   .pts-field input[type="password"],
   .pts-field input[type="file"]{
-    background:var(--panel);border:1px solid #3a3a32;color:var(--paper);
+    background:var(--panel);border:1px solid var(--border);color:var(--paper);
     padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
     border-radius:2px;outline:none;
   }
@@ -820,22 +914,22 @@
     font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;
     text-transform:uppercase;padding:9px 16px;border-radius:2px;cursor:pointer;
   }
-  .pts-btn:hover{border-color:var(--amber);background:#201f19;}
+  .pts-btn:hover{border-color:var(--amber);background:var(--surface-hover);}
   .pts-btn:disabled{opacity:.5;cursor:wait;}
   .pts-note{
-    font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6858;line-height:1.6;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.6;
     margin:10px 0 0;max-width:760px;
   }
-  .pts-note b{color:#a8a292;}
+  .pts-note b{color:var(--text-soft);}
   .pts-badge{
     display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.06em;
     padding:2px 7px;border-radius:2px;text-transform:uppercase;margin-left:8px;vertical-align:middle;
   }
   .pts-badge.beta{background:#3a2a06;color:var(--amber);}
-  .pts-badge.reliable{background:#0d3a24;color:var(--green);}
-  .pts-status{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.03em;color:#8a8672;margin-top:10px;}
+  .pts-badge.reliable{background:var(--green-tint-2);color:var(--green);}
+  .pts-status{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.03em;color:var(--text-softer);margin-top:10px;}
   .pts-status.ok{color:var(--green);}
-  .pts-status.err{color:#F8696B;}
+  .pts-status.err{color:var(--danger);}
 
   .pts-controls{
     margin-top:18px;
@@ -843,48 +937,48 @@
     font-family:'JetBrains Mono',monospace;
   }
   .pts-controls select{
-    background:var(--panel-2);border:1px solid #3a3a32;color:var(--paper);
+    background:var(--panel-2);border:1px solid var(--border);color:var(--paper);
     padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
     border-radius:2px;outline:none;
   }
   .pts-controls select:focus{border-color:var(--amber);}
-  .pts-controls label{color:#ccc;font-size:12px;}
+  .pts-controls label{color:var(--text-soft);font-size:12px;}
   .pts-watch-toggle{
     display:flex;align-items:center;gap:6px;cursor:pointer;
-    color:#a8a292;font-size:11.5px;letter-spacing:.03em;user-select:none;
+    color:var(--text-soft);font-size:11.5px;letter-spacing:.03em;user-select:none;
   }
   .pts-watch-toggle input{accent-color:var(--amber);cursor:pointer;}
   .pts-watch-toggle span{color:inherit;}
   .pts-watch-toggle:has(input:checked) span{color:var(--amber);}
   .pts-btn-ghost{
-    background:transparent;border:1px solid #3a3a32;color:#a8a292;
+    background:transparent;border:1px solid var(--border);color:var(--text-soft);
     padding:7px 12px;font-size:10.5px;
   }
-  .pts-btn-ghost:hover{border-color:#F8696B;color:#F8696B;background:transparent;}
-  .pts-summary{margin-left:auto;font-size:11px;color:#8a8672;letter-spacing:.03em;}
+  .pts-btn-ghost:hover{border-color:var(--danger);color:var(--danger);background:transparent;}
+  .pts-summary{margin-left:auto;font-size:11px;color:var(--text-softer);letter-spacing:.03em;}
   .pts-summary b{color:var(--paper);}
 
   .pts-table-wrap{max-width:1400px;margin:16px auto 0;}
   .pts-empty{
-    padding:40px 20px;text-align:center;color:#6b6858;
+    padding:40px 20px;text-align:center;color:var(--text-dim);
     font-family:'JetBrains Mono',monospace;font-size:12.5px;
-    border:1px dashed #3a3a32;border-radius:3px;margin-top:16px;
+    border:1px dashed var(--border);border-radius:3px;margin-top:16px;
   }
   table.pts-table{border-collapse:collapse;width:100%;font-family:'JetBrains Mono',monospace;}
   table.pts-table thead th{
-    position:sticky;top:0;z-index:3;background:#151511;color:#c9c4b2;
+    position:sticky;top:0;z-index:3;background:var(--surface-3);color:var(--text-bright);
     font-size:11px;font-weight:600;letter-spacing:.05em;padding:8px 6px;
     border-bottom:2px solid var(--amber-dim);text-align:center;white-space:nowrap;
     cursor:pointer;user-select:none;
   }
   table.pts-table thead th:hover{color:var(--amber);}
-  th.pts-col-player, th.pts-col-team, th.pts-col-pos{text-align:left;position:sticky;z-index:4;background:#151511;}
+  th.pts-col-player, th.pts-col-team, th.pts-col-pos{text-align:left;position:sticky;z-index:4;background:var(--surface-3);}
   th.pts-col-player{left:0;width:170px;min-width:170px;}
   th.pts-col-team{left:170px;width:130px;min-width:130px;}
   th.pts-col-pos{left:300px;width:44px;min-width:44px;border-right:2px solid var(--amber-dim);}
   td.pts-col-player, td.pts-col-team, td.pts-col-pos{
     position:sticky;z-index:2;background:var(--panel-2);
-    border-bottom:1px solid #2a2a24;border-right:1px solid #232320;
+    border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);
   }
   td.pts-col-player{
     left:0;width:170px;min-width:170px;padding:8px 10px;font-family:'Inter',sans-serif;
@@ -895,28 +989,28 @@
   td.pts-col-player .pts-watch-star{color:var(--amber);font-weight:800;margin-left:2px;}
   tr.pts-row-watched td.pts-col-player,
   tr.pts-row-watched td.pts-col-team,
-  tr.pts-row-watched td.pts-col-pos{background:#211a0c;}
-  td.pts-col-team{left:170px;width:130px;min-width:130px;padding:8px 10px;font-size:11.5px;color:#a8a292;white-space:nowrap;}
+  tr.pts-row-watched td.pts-col-pos{background:var(--amber-tint);}
+  td.pts-col-team{left:170px;width:130px;min-width:130px;padding:8px 10px;font-size:11.5px;color:var(--text-soft);white-space:nowrap;}
   td.pts-col-pos{left:300px;width:44px;min-width:44px;text-align:center;border-right:2px solid var(--amber-dim);}
   tbody tr:nth-child(even) td.pts-col-player,
   tbody tr:nth-child(even) td.pts-col-team,
-  tbody tr:nth-child(even) td.pts-col-pos{background:#201f1a;}
+  tbody tr:nth-child(even) td.pts-col-pos{background:var(--surface-hover);}
   tbody tr:hover td.pts-col-player,
   tbody tr:hover td.pts-col-team,
-  tbody tr:hover td.pts-col-pos{background:#2a2820;}
+  tbody tr:hover td.pts-col-pos{background:var(--surface-hover);}
   td.pts-val{
     min-width:52px;height:34px;text-align:center;font-size:11.5px;font-weight:700;
-    border-bottom:1px solid #2a2a24;border-right:1px solid #232320;
+    border-bottom:1px solid var(--border-soft);border-right:1px solid var(--border-soft);
   }
   td.pts-val.pts-extra{color:var(--amber);font-family:'JetBrains Mono',monospace;}
   .pts-scale-legend{
     display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
-    font-size:10px;color:#8a8672;margin-left:12px;
+    font-size:10px;color:var(--text-softer);margin-left:12px;
   }
   .pts-scale-bar{
     display:inline-block;width:100px;height:11px;border-radius:2px;
-    background:linear-gradient(90deg, #201f1a, var(--green));
-    border:1px solid #3a3a32;
+    background:linear-gradient(90deg, var(--empty-cell-bg), var(--green));
+    border:1px solid var(--border);
   }
 
   @media (max-width:640px){
@@ -942,6 +1036,9 @@
     <a href="#plannerRoot2">Squad B</a>
     <a href="#plannerRoot3">Squad C</a>
     <a href="#pointsProjections">FPL Points projections</a>
+    <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Switch colour theme" aria-label="Switch colour theme">
+      <span id="themeToggleIcon">&#9790;</span><span id="themeToggleLabel">Dark</span>
+    </button>
   </div>
 </nav>
 
@@ -949,7 +1046,7 @@
   <div class="masthead-inner">
     <div class="eyebrow"><span class="dot"></span>LIVE FIXTURE TICKER · 380 MATCHES LOADED</div>
     <h1>FPL Fixture <span>Planner</span></h1>
-    <p class="sub">Every Premier League fixture for the 2026/27 season, gameweek by gameweek. Home fixtures in <b style="color:var(--paper)">UPPERCASE</b>, away fixtures in <span style="font-style:italic;color:#a8a292">lowercase</span>. Search a club, scan the run, plan your transfers.</p>
+    <p class="sub">Every Premier League fixture for the 2026/27 season, gameweek by gameweek. Home fixtures in <b style="color:var(--paper)">UPPERCASE</b>, away fixtures in <span style="font-style:italic;color:var(--text-soft)">lowercase</span>. Search a club, scan the run, plan your transfers.</p>
     <div class="tape">
       <span><b>SEASON</b> 22 AUG 2026 &rarr; 30 MAY 2027</span>
       <span><b>CLUBS</b> 20</span>
@@ -962,8 +1059,8 @@
 
 <div class="controls">
   <input class="search" id="search" type="text" placeholder="&gt; search club or code_" autocomplete="off">
-  <label style="color:#ccc;font-family:JetBrains Mono">GW <select id="currentGW"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
-<label style="color:#ccc;font-family:JetBrains Mono">Run <select id="gwCount"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
+  <label style="color:var(--text-soft);font-family:JetBrains Mono">GW <select id="currentGW"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
+<label style="color:var(--text-soft);font-family:JetBrains Mono">Run <select id="gwCount"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
 <div class="legend">
     <span class="k">CASE = venue: <span class="swatch home">ARS</span> home &nbsp; <span class="swatch away">ars</span> away</span>
     <span class="k scale-k">DIFFICULTY&nbsp;
@@ -1052,13 +1149,13 @@
           <option value="3">Midfielders</option>
           <option value="4">Forwards</option>
         </select>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">£
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">£
           <select id="priceMin1"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">to
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax1"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
           <select id="squadStartGW1"></select>
         </label>
         <div class="quota-summary" id="quotaSummary1"></div>
@@ -1087,11 +1184,11 @@
         <div class="transfer-panel-title">Transfers</div>
         <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
         <div class="transfer-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">From
             <select id="transferGW1"></select>
           </label>
           <select id="transferOut1"></select>
-          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;">&rarr;</span>
           <select id="transferIn1"></select>
           <button id="addTransferBtn1" class="transfer-add-btn">+ Add transfer</button>
         </div>
@@ -1102,7 +1199,7 @@
         <div class="transfer-panel-title">Chips</div>
         <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
         <div class="chip-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">For
             <select id="chipGW1"></select>
           </label>
           <button type="button" id="chipBenchBtn1" class="chip-btn bb">Bench Boost</button>
@@ -1112,7 +1209,7 @@
       </div>
 
       <div class="fixture-run-wrap" id="fixtureRunWrap1">
-        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-softer);margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
         </p>
         <div class="grid-scroll">
@@ -1128,8 +1225,8 @@
 
     <div class="planner-instance" id="plannerRoot2">
       <div class="planner-instance-head">
-        <span class="planner-instance-dot" style="background:#6cc6ff"></span>
-        <h3 style="color:#6cc6ff">Squad B</h3>
+        <span class="planner-instance-dot" style="background:var(--mid-text)"></span>
+        <h3 style="color:var(--mid-text)">Squad B</h3>
         <button id="minimiseBtn2" class="minimise-btn" title="Minimise squad" aria-expanded="true">&#9662;</button>
       </div>
       <div class="planner-min-summary" id="plannerMinSummary2"></div>
@@ -1148,13 +1245,13 @@
           <option value="3">Midfielders</option>
           <option value="4">Forwards</option>
         </select>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">£
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">£
           <select id="priceMin2"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">to
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax2"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
           <select id="squadStartGW2"></select>
         </label>
         <div class="quota-summary" id="quotaSummary2"></div>
@@ -1181,11 +1278,11 @@
         <div class="transfer-panel-title">Transfers</div>
         <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
         <div class="transfer-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">From
             <select id="transferGW2"></select>
           </label>
           <select id="transferOut2"></select>
-          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;">&rarr;</span>
           <select id="transferIn2"></select>
           <button id="addTransferBtn2" class="transfer-add-btn">+ Add transfer</button>
         </div>
@@ -1196,7 +1293,7 @@
         <div class="transfer-panel-title">Chips</div>
         <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
         <div class="chip-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">For
             <select id="chipGW2"></select>
           </label>
           <button type="button" id="chipBenchBtn2" class="chip-btn bb">Bench Boost</button>
@@ -1206,7 +1303,7 @@
       </div>
 
       <div class="fixture-run-wrap" id="fixtureRunWrap2">
-        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-softer);margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
         </p>
         <div class="grid-scroll">
@@ -1222,8 +1319,8 @@
 
     <div class="planner-instance" id="plannerRoot3">
       <div class="planner-instance-head">
-        <span class="planner-instance-dot" style="background:#5fe3a3"></span>
-        <h3 style="color:#5fe3a3">Squad C</h3>
+        <span class="planner-instance-dot" style="background:var(--def-text)"></span>
+        <h3 style="color:var(--def-text)">Squad C</h3>
         <button id="minimiseBtn3" class="minimise-btn" title="Minimise squad" aria-expanded="true">&#9662;</button>
       </div>
       <div class="planner-min-summary" id="plannerMinSummary3"></div>
@@ -1242,13 +1339,13 @@
           <option value="3">Midfielders</option>
           <option value="4">Forwards</option>
         </select>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">£
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">£
           <select id="priceMin3"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">to
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax3"></select>
         </label>
-        <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
           <select id="squadStartGW3"></select>
         </label>
         <div class="quota-summary" id="quotaSummary3"></div>
@@ -1275,11 +1372,11 @@
         <div class="transfer-panel-title">Transfers</div>
         <p class="transfer-panel-sub">Swap a player for another, effective from a chosen gameweek within this squad's displayed run (GW2&ndash;GW6 of the window &mdash; GW1 is locked as the starting squad). The fixture run and projected points below update from that gameweek onward.</p>
         <div class="transfer-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">From
             <select id="transferGW3"></select>
           </label>
           <select id="transferOut3"></select>
-          <span style="color:#6b6858;font-family:'JetBrains Mono',monospace;">&rarr;</span>
+          <span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;">&rarr;</span>
           <select id="transferIn3"></select>
           <button id="addTransferBtn3" class="transfer-add-btn">+ Add transfer</button>
         </div>
@@ -1290,7 +1387,7 @@
         <div class="transfer-panel-title">Chips</div>
         <p class="transfer-panel-sub">Play a chip for a single gameweek in this run. Only one chip can be active at a time &mdash; playing the other one swaps it.</p>
         <div class="chip-row">
-          <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">For
+          <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">For
             <select id="chipGW3"></select>
           </label>
           <button type="button" id="chipBenchBtn3" class="chip-btn bb">Bench Boost</button>
@@ -1300,7 +1397,7 @@
       </div>
 
       <div class="fixture-run-wrap" id="fixtureRunWrap3">
-        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8672;margin:0 0 8px;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-softer);margin:0 0 8px;">
           Click any fixture to start / bench that player for that gameweek &middot; max 11 starters (1 GK) per week &middot; defaults to your highest-scoring XI
         </p>
         <div class="grid-scroll">
@@ -1394,14 +1491,14 @@
         <option value="M">Midfielders</option>
         <option value="F">Forwards</option>
       </select>
-      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">£
+      <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">£
         <select id="ptsPriceMin"></select>
       </label>
-      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">to
+      <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
         <select id="ptsPriceMax"></select>
       </label>
-      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">From GW <select id="ptsFirstGW"></select></label>
-      <label style="color:#ccc;font-family:'JetBrains Mono',monospace;font-size:12px;">To GW <select id="ptsLastGW"></select></label>
+      <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">From GW <select id="ptsFirstGW"></select></label>
+      <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">To GW <select id="ptsLastGW"></select></label>
       <select id="ptsSortBy">
         <option value="total">Sort: Total points</option>
         <option value="price">Sort: Price</option>
@@ -1446,16 +1543,19 @@ DATA.gwLabels.forEach((gw, i) => {
   headRow.appendChild(th);
 });
 
-// Simple Excel-style 3-stop scale: Blue(1, easiest) -> White(mid) -> Red(20, hardest)
+// Simple Excel-style 3-stop scale: Blue(1, easiest) -> Mid(mid) -> Red(20, hardest)
+// The midpoint anchor flips with the theme so it never blends into the page background.
 const BLUE = [90, 138, 198];   // rating 1  (easiest)   #5A8AC6
-const MID  = [255, 255, 255];  // rating ~10.5 (midpoint)
 const RED  = [248, 105, 107];  // rating 20 (hardest)   #F8696B
+function isLightTheme(){ return document.documentElement.getAttribute('data-theme') === 'light'; }
+function currentMid(){ return isLightTheme() ? [214, 208, 188] : [255, 255, 255]; }
 
 function lerp(a, b, t){ return a + (b - a) * t; }
 
 function colorForRating(rating){
   // rating expected 1..20
   const t = (rating - 1) / 19; // 0..1
+  const MID = currentMid();
   let c1, c2, tt;
   if(t <= 0.5){
     c1 = BLUE; c2 = MID; tt = t / 0.5;
@@ -1487,7 +1587,7 @@ DATA.teams.forEach((team, idx) => {
 
   const tdTeam = document.createElement('td');
   tdTeam.className = 'col-team';
-  tdTeam.innerHTML = `<span class="crest" style="background:#8a8672"></span>${team.full}`;
+  tdTeam.innerHTML = `<span class="crest" style="background:var(--text-softer)"></span>${team.full}`;
   tr.appendChild(tdTeam);
 
   const tdAbbr = document.createElement('td');
@@ -2120,7 +2220,7 @@ function createSquadPlanner(sfx){
       const quotaFull = c[p.element_type] >= QUOTA[p.element_type];
       const totalFull = squadIds.size >= 15;
       const disabled = !selected && (quotaFull || totalFull);
-      const color = DATA.colors[p.team_short] || '#8a8672';
+      const color = DATA.colors[p.team_short] || getComputedStyle(document.documentElement).getPropertyValue('--text-softer').trim();
       const statusClass = 'pk-status-' + (p.status || 'a');
 
       const tr = document.createElement('tr');
@@ -2226,11 +2326,11 @@ function createSquadPlanner(sfx){
       const group = byPos[pos];
       html += `<div class="squad-group"><div class="squad-group-title">${POS_LABEL[pos]} (${group.length}/${QUOTA[pos]})</div>`;
       if(group.length === 0){
-        html += `<div style="color:#6b6858;font-size:11.5px;padding:4px 0;">\u2014</div>`;
+        html += `<div style="color:var(--text-dim);font-size:11.5px;padding:4px 0;">\u2014</div>`;
       } else {
         group.sort((a,b) => b.total_points - a.total_points);
         group.forEach(p => {
-          const color = DATA.colors[p.team_short] || '#8a8672';
+          const color = DATA.colors[p.team_short] || getComputedStyle(document.documentElement).getPropertyValue('--text-softer').trim();
           html += `<div class="squad-chip">
             <span class="cname">${p.web_name}</span>
             <span class="cteam" style="color:${color}">${p.team_short}</span>
@@ -2329,7 +2429,7 @@ function createSquadPlanner(sfx){
       group.forEach(p => {
         const tr = document.createElement('tr');
         tr.className = 'squad-row';
-        const color = DATA.colors[p.team_short] || '#8a8672';
+        const color = DATA.colors[p.team_short] || getComputedStyle(document.documentElement).getPropertyValue('--text-softer').trim();
 
         const tdPos = document.createElement('td');
         tdPos.className = 'sq-col-pos';
@@ -2357,7 +2457,7 @@ function createSquadPlanner(sfx){
 
           if(!inSquadThisGW){
             td.className = 'sq-fx not-in-squad';
-            td.innerHTML = `<div class="pill" style="background:#1a1a16;color:#4a4632;">\u2014</div>`;
+            td.innerHTML = `<div class="pill" style="background:var(--not-squad-bg);color:var(--not-squad-text);">\u2014</div>`;
             td.title = outEvent
               ? `Transferred out from GW${outEvent.gw} \u00b7 not in this squad GW${gwNum}`
               : `Joins the squad from GW${inEvent ? inEvent.gw : '?'} \u00b7 not in this squad yet GW${gwNum}`;
@@ -2378,7 +2478,7 @@ function createSquadPlanner(sfx){
           }
           td.className = 'sq-fx' + (starting ? '' : ' benched') + (benchBoostHere && !starting ? ' bench-boost-active' : '');
           if(!team || gwIdx >= 38 || !team.fixtures[gwIdx]){
-            td.innerHTML = `<div class="pill" style="background:#2a2a24;color:#6b6858;">\u2014</div>`;
+            td.innerHTML = `<div class="pill" style="background:var(--empty-cell-bg);color:var(--empty-cell-text);">\u2014</div>`;
           } else {
             const opp = team.fixtures[gwIdx];
             const isHome = opp === opp.toUpperCase();
@@ -2735,6 +2835,11 @@ function createSquadPlanner(sfx){
   renderAll();
 
   return {
+    rerenderTheme(){
+      // Fixture pills / heatmap colours are computed at render time from the
+      // live CSS variables, so a theme switch just needs a re-render.
+      renderSquadFixtureTable();
+    },
     onDataRefresh(){
       // Squad selections (by player id) and lineup choices survive a data refresh
       // automatically since IDs are stable; just re-populate filters and re-render.
@@ -3321,12 +3426,23 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     els.priceMax.value = (prevMax !== null && steps.includes(prevMax)) ? prevMax : max;
   }
 
+  function hexToRgb(hex){
+    const h = hex.trim().replace('#','');
+    const v = h.length === 3 ? h.split('').map(c => c+c).join('') : h;
+    const n = parseInt(v, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
   function ptsColor(t){
-    // t: 0..1 normalized value -> dark panel base through to accent green
-    const LOW = [32,31,26], HIGH = [0,217,122];
+    // t: 0..1 normalized value -> page/panel base through to accent green
+    const rootStyle = getComputedStyle(document.documentElement);
+    const LOW = hexToRgb(rootStyle.getPropertyValue('--panel-2') || '#1a1a16');
+    const HIGH = hexToRgb(rootStyle.getPropertyValue('--green') || '#00d97a');
     const c = LOW.map((v,i) => Math.round(v + (HIGH[i]-v)*t));
     const rgb = `rgb(${c[0]},${c[1]},${c[2]})`;
-    const textColor = t > 0.55 ? '#0a0f0a' : (t > 0.22 ? '#e8f5ee' : '#8a8672');
+    const textColor = isLightTheme()
+      ? (t > 0.55 ? '#eafff2' : (t > 0.22 ? '#14241c' : '#8f8a76'))
+      : (t > 0.55 ? '#0a0f0a' : (t > 0.22 ? '#e8f5ee' : '#8a8672'));
     return {bg: rgb, text: textColor};
   }
 
@@ -3478,6 +3594,10 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
       renderPtsAll();
     }
   };
+
+  // Heatmap colours are computed from live CSS variables at render time,
+  // so a theme switch just needs a re-render.
+  window.FPL_RERENDER_PTS_TABLE = renderPtsAll;
 })();
 </script>
 
@@ -3686,6 +3806,54 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     el.addEventListener('change', persistConfigIfRemembering);
   });
 })();
+</script>
+
+<script>
+  // ---- Theme toggle (light / dark) ----
+  (function(){
+    const THEME_KEY = 'fplTheme';
+    const btn = document.getElementById('themeToggleBtn');
+    const icon = document.getElementById('themeToggleIcon');
+    const label = document.getElementById('themeToggleLabel');
+
+    function currentTheme(){
+      return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    }
+
+    function updateToggleUI(theme){
+      if(!btn) return;
+      icon.textContent = theme === 'light' ? '\u2600' : '\u263E';
+      label.textContent = theme === 'light' ? 'Light' : 'Dark';
+      btn.title = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+      btn.setAttribute('aria-label', btn.title);
+    }
+
+    function rerenderEverything(){
+      // Fixture pills and heatmaps read live CSS variables at render time,
+      // so a theme switch just needs everything visible to re-render.
+      if(typeof updateRun === 'function') updateRun();
+      if(window.FPL_RERENDER_PTS_TABLE) window.FPL_RERENDER_PTS_TABLE();
+      if(typeof PLANNER_INSTANCES !== 'undefined'){
+        PLANNER_INSTANCES.forEach(inst => inst.rerenderTheme && inst.rerenderTheme());
+      }
+    }
+
+    function setTheme(theme, opts){
+      document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+      updateToggleUI(theme);
+      try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+      if(!opts || !opts.skipRerender) rerenderEverything();
+    }
+
+    // Reflect whatever the anti-flash script already applied to <html>, without re-rendering.
+    updateToggleUI(currentTheme());
+
+    if(btn){
+      btn.addEventListener('click', () => {
+        setTheme(currentTheme() === 'light' ? 'dark' : 'light');
+      });
+    }
+  })();
 </script>
 
 </body>

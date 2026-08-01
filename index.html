@@ -410,16 +410,14 @@
     thead th{padding:8px 6px;font-size:10px;}
     td{padding:7px 6px;font-size:11.5px;}
     td.col-rank, th.col-rank{width:26px;min-width:26px;}
-    td.col-team, th.col-team{left:26px;width:120px;min-width:120px;font-size:11.5px;}
-    td.col-abbr, th.col-abbr{left:146px;width:46px;min-width:46px;}
+    td.col-team, th.col-team{display:none;}
+    td.col-abbr, th.col-abbr{left:26px;width:64px;min-width:64px;font-size:12px;border-right:2px solid var(--amber-dim);}
   }
 
   @media (max-width:420px){
     h1{font-size:20px;}
     .eyebrow{font-size:9.5px;letter-spacing:.1em;}
     .sub{font-size:12px;}
-    td.col-team, th.col-team{width:98px;min-width:98px;}
-    td.col-abbr, th.col-abbr{left:124px;}
   }
 
   #plannerRoot1, #plannerRoot2, #plannerRoot3, #pointsProjections{
@@ -852,7 +850,7 @@
     .picker-table-wrap{max-height:360px;}
     table.picker-table thead th{font-size:9.5px;padding:6px 4px;}
     table.picker-table tbody td{font-size:10.5px;padding:5px 4px;}
-    td.pk-col-player .full{font-size:9px;}
+    td.pk-col-player .full{display:none;}
     td.pk-add{width:14px;font-size:13px;}
 
     th.sq-col-pos, td.sq-col-pos{width:34px;min-width:34px;padding:6px 4px;}
@@ -1073,6 +1071,8 @@
       <span><b>MATCHWEEKS</b> 38</span>
       <span><b>PROMOTED</b> HUL &middot; IPS &middot; COV</span>
       <span><b>SOURCE</b> PREMIERLEAGUE.COM, RELEASED 19 JUN 2026</span>
+      <!-- CODE_UPDATED: bump this date whenever the page's code is edited -->
+      <span id="codeUpdatedTape"><b>CODE UPDATED</b> 1 AUG 2026</span>
     </div>
   </div>
 </header>

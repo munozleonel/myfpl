@@ -412,6 +412,9 @@
     td.col-rank, th.col-rank{width:26px;min-width:26px;}
     td.col-team, th.col-team{display:none;}
     td.col-abbr, th.col-abbr{left:26px;width:64px;min-width:64px;font-size:12px;border-right:2px solid var(--amber-dim);}
+    td.fx{min-width:44px;height:34px;}
+    td.fx .pill{font-size:10.5px;}
+    thead th.gw-col{padding:8px 3px;}
   }
 
   @media (max-width:420px){
@@ -853,10 +856,10 @@
     td.pk-col-player .full{display:none;}
     td.pk-add{width:14px;font-size:13px;}
 
-    th.sq-col-pos, td.sq-col-pos{width:34px;min-width:34px;padding:6px 4px;}
-    th.sq-col-player, td.sq-col-player{left:34px;width:130px;min-width:130px;padding:6px 8px;font-size:11.5px;}
+    th.sq-col-pos, td.sq-col-pos{width:30px;min-width:30px;padding:6px 3px;}
+    th.sq-col-player, td.sq-col-player{left:30px;width:108px;min-width:108px;padding:6px 6px;font-size:11px;}
     td.sq-col-player .csub{font-size:9px;}
-    td.sq-fx{min-width:42px;height:40px;}
+    td.sq-fx{min-width:40px;height:40px;}
     td.sq-fx .pill{font-size:10px;}
     td.sq-fx .pill .sq-pts{font-size:8.5px;}
     td.sq-total-cell{font-size:11px;}
@@ -1691,6 +1694,14 @@ function updateRun(){
 }
 document.getElementById('currentGW').addEventListener('change',updateRun);
 document.getElementById('gwCount').addEventListener('change',updateRun);
+// On mobile portrait, make sure at least 6 gameweeks show by default (desktop default stays 5).
+(function(){
+  const gwCountSel = document.getElementById('gwCount');
+  const isMobilePortrait = window.matchMedia('(max-width:640px) and (orientation:portrait)').matches;
+  if(isMobilePortrait && +gwCountSel.value < 6){
+    gwCountSel.value = 6;
+  }
+})();
 updateRun();
 
 

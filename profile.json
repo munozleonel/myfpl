@@ -1,6 +1,7 @@
 {
   "version": 1,
   "savedAt": "2026-08-21T00:05:09.736Z",
+  "currentGW": 1,
   "squads": {
     "1": {
       "squadIds": [

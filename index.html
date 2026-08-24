@@ -161,6 +161,35 @@
   }
   .tape b{color:var(--amber);font-weight:700;}
 
+  /* ---------- Header gameweek picker ---------- */
+  .gw-picker{
+    margin-top:16px;
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .gw-picker label{
+    display:flex;align-items:center;gap:9px;
+    font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber-dim);
+  }
+  .gw-picker select{
+    background:var(--panel-2);
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    padding:6px 10px;
+    border-radius:2px;
+    outline:none;
+    cursor:pointer;
+  }
+  .gw-picker select:focus{border-color:var(--amber);}
+  .gw-picker .gw-note{
+    color:var(--text-dim);font-size:10.5px;letter-spacing:.02em;text-transform:none;
+    font-weight:400;
+  }
+
   /* ---------- Controls ---------- */
   .controls{
     max-width:1400px;margin:18px auto 0;padding:0 20px;
@@ -1077,12 +1106,17 @@
       <!-- CODE_UPDATED: bump this date whenever the page's code is edited -->
       <span id="codeUpdatedTape"><b>CODE UPDATED</b> 1 AUG 2026</span>
     </div>
+    <div class="gw-picker">
+      <label for="currentGW">Current gameweek
+        <select id="currentGW"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select>
+      </label>
+      <span class="gw-note">Sets the starting point for the fixture ticker, all 3 squads (6&#8209;GW run) and points projections &middot; saved to your profile.</span>
+    </div>
   </div>
 </header>
 
 <div class="controls">
   <input class="search" id="search" type="text" placeholder="&gt; search club or code_" autocomplete="off">
-  <label style="color:var(--text-soft);font-family:JetBrains Mono">GW <select id="currentGW"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
 <label style="color:var(--text-soft);font-family:JetBrains Mono">Run <select id="gwCount"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option></select></label>
 <div class="legend">
     <span class="k">CASE = venue: <span class="swatch home">ARS</span> home &nbsp; <span class="swatch away">ars</span> away</span>
@@ -1178,7 +1212,7 @@
         <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax1"></select>
         </label>
-        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="display:none;color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;" title="Now set from the Current Gameweek dropdown in the header">Start GW
           <select id="squadStartGW1"></select>
         </label>
         <div class="quota-summary" id="quotaSummary1"></div>
@@ -1274,7 +1308,7 @@
         <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax2"></select>
         </label>
-        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="display:none;color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;" title="Now set from the Current Gameweek dropdown in the header">Start GW
           <select id="squadStartGW2"></select>
         </label>
         <div class="quota-summary" id="quotaSummary2"></div>
@@ -1368,7 +1402,7 @@
         <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">to
           <select id="priceMax3"></select>
         </label>
-        <label style="color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;">Start GW
+        <label style="display:none;color:var(--text-soft);font-family:'JetBrains Mono',monospace;font-size:12px;" title="Now set from the Current Gameweek dropdown in the header">Start GW
           <select id="squadStartGW3"></select>
         </label>
         <div class="quota-summary" id="quotaSummary3"></div>
@@ -3634,6 +3668,88 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
 
 <script>
 /* ==========================================================================
+   Global "current gameweek" control (header dropdown)
+   Single source of truth that drives:
+     - the fixture ticker's run (#currentGW already feeds updateRun())
+     - all 3 squads' Start GW, so their 6-gameweek run, transfers, chips
+       and projected points all begin from this gameweek
+     - the points projections table's default From/To GW range
+   Persisted standalone in localStorage and round-tripped as a top-level
+   "currentGW" field on the Cloud Profile Sync profile.json.
+   ========================================================================== */
+(function(){
+  const GW_KEY = 'fplCurrentGW_v1';
+  const sel = document.getElementById('currentGW');
+  if(!sel) return;
+
+  function clampGW(v){
+    const n = parseInt(v, 10);
+    if(!Number.isFinite(n)) return 1;
+    return Math.min(38, Math.max(1, n));
+  }
+
+  function saveGW(g){
+    try{ localStorage.setItem(GW_KEY, String(g)); }catch(e){ /* ignore */ }
+  }
+
+  function loadSavedGW(){
+    try{
+      const raw = localStorage.getItem(GW_KEY);
+      if(raw != null) return clampGW(raw);
+    }catch(e){ /* ignore */ }
+    return null;
+  }
+
+  function applyGW(gw, opts){
+    const g = clampGW(gw);
+    sel.value = String(g);
+
+    // Fixture ticker.
+    if(typeof updateRun === 'function') updateRun();
+
+    // Each squad has its own Start GW select driving its 6-GW window —
+    // set it and fire 'change' so that squad's existing wiring (transfers,
+    // chips, fixture table, projected points, saved state) re-renders.
+    document.querySelectorAll('select[id^="squadStartGW"]').forEach(startSel => {
+      if(startSel.value !== String(g)){
+        startSel.value = String(g);
+        startSel.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // Points projections — default the From/To GW range to match the same
+    // 6-week window (existing filter wiring re-renders the table on change).
+    const firstGW = document.getElementById('ptsFirstGW');
+    const lastGW = document.getElementById('ptsLastGW');
+    if(firstGW && lastGW){
+      firstGW.value = String(g);
+      lastGW.value = String(Math.min(38, g + 5));
+      firstGW.dispatchEvent(new Event('change'));
+    }
+
+    if(!opts || !opts.skipSave) saveGW(g);
+  }
+
+  sel.addEventListener('change', () => applyGW(sel.value));
+
+  // On load: prefer a previously saved global gameweek; otherwise fall back
+  // to whatever Squad A's own Start GW already resolved to (so upgrading
+  // from the old per-squad controls doesn't silently reset anyone to GW1).
+  const squadASel = document.getElementById('squadStartGW1');
+  const saved = loadSavedGW();
+  const initial = saved != null ? saved : (squadASel ? clampGW(squadASel.value) : 1);
+  applyGW(initial, {skipSave: saved == null});
+
+  // ---- Cloud Profile Sync bridge ----
+  window.FPL_CURRENT_GW_SYNC = {
+    get(){ return clampGW(sel.value); },
+    set(gw){ applyGW(gw); }
+  };
+})();
+</script>
+
+<script>
+/* ==========================================================================
    Cloud Profile Sync — save/load a profile.json (3 squads + watchlist)
    straight to/from this GitHub repo via the GitHub Contents API, so the
    same profile can be picked up from any machine/browser.
@@ -3724,6 +3840,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     return {
       version: 1,
       savedAt: new Date().toISOString(),
+      currentGW: (window.FPL_CURRENT_GW_SYNC ? window.FPL_CURRENT_GW_SYNC.get() : 1),
       squads,
       watched: (window.FPL_WATCHED_SYNC ? window.FPL_WATCHED_SYNC.get() : []),
     };
@@ -3731,6 +3848,13 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
 
   function applyProfile(profile){
     if(!profile || typeof profile !== 'object') throw new Error('profile.json is not a valid profile object.');
+    if(profile.currentGW != null && window.FPL_CURRENT_GW_SYNC){
+      // Sets the header's gameweek dropdown, which in turn re-syncs every
+      // squad's Start GW and the points projections range to match — do
+      // this before applying per-squad state below so their transfers/
+      // chips (which are relative to the squad's run) land correctly.
+      window.FPL_CURRENT_GW_SYNC.set(profile.currentGW);
+    }
     if(profile.squads){
       PLANNER_INSTANCES.forEach((inst, i) => {
         const state = profile.squads[i + 1] ?? profile.squads[String(i + 1)];

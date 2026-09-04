@@ -470,23 +470,36 @@ render();
 /* ---------- Live data refresh ---------- */
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
 // The FPL API has no CORS headers, so a direct browser fetch from this file will fail.
-// Try a few public CORS relays in turn; if your network blocks all of them, the
-// button will fail gracefully and the embedded snapshot keeps working as-is.
+// Try a few public CORS relays in turn, each wrapped in its own request timeout so a
+// relay that's overloaded (hangs instead of erroring) doesn't stall the others. If your
+// network blocks all of them, the button fails gracefully and the snapshot keeps working.
 const REFRESH_PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  // codetabs: no API key, comfortably handles this ~2-3MB payload, forwards raw JSON.
+  {build: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, parse: res => res.json()},
+  {build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, parse: res => res.json()},
+  // allorigins' JSON-wrapped endpoint as a second chance on the same service.
+  {build: url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, parse: async res => JSON.parse((await res.json()).contents)},
+  // corsproxy.io now caps free/unauthenticated requests around 1MB and can reject
+  // this payload, but it's free to try last.
+  {build: url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`, parse: res => res.json()},
 ];
 const POS_SHORT = {1:"GKP", 2:"DEF", 3:"MID", 4:"FWD"};
 
+// A plain fetch with a hard timeout — some public CORS relays hang instead of
+// failing fast when they're overloaded or blocked, which used to stall refreshes.
+function fetchWithTimeout(url, opts, timeoutMs){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 10000);
+  return fetch(url, {...(opts || {}), signal: ctrl.signal}).finally(() => clearTimeout(timer));
+}
+
 async function fetchLiveBootstrap(){
   let lastErr;
-  for(const buildUrl of REFRESH_PROXIES){
+  for(const proxy of REFRESH_PROXIES){
     try{
-      const res = await fetch(buildUrl(FPL_URL), {cache:"no-store"});
+      const res = await fetchWithTimeout(proxy.build(FPL_URL), {cache:"no-store"}, 12000);
       if(!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
+      const data = await proxy.parse(res);
       if(data && Array.isArray(data.elements) && Array.isArray(data.teams)) return data;
       throw new Error("Unexpected payload shape");
     }catch(err){
@@ -549,7 +562,7 @@ async function refreshLiveData(){
   }catch(err){
     console.error("Live refresh failed:", err);
     status.className = "refresh-status err";
-    status.textContent = "Couldn't fetch live data \u2014 your network may be blocking the connection. Still showing the snapshot above.";
+    status.textContent = "Couldn't fetch live data \u2014 tried " + REFRESH_PROXIES.length + " public relays and none got through (your network, or all of them, may be blocking it right now). Still showing the snapshot above.";
   }finally{
     btn.disabled = false;
     btn.innerHTML = "&#8635; Refresh live data";

@@ -3002,21 +3002,37 @@ document.querySelectorAll('a[data-squad-nav]').forEach(a => {
 
 /* ---------- Live data refresh (shared across all 3 squad builders) ---------- */
 const SQUAD_FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
+// The FPL API has no CORS headers, so a direct browser fetch from this page will fail.
+// Try a few public CORS relays in turn, each wrapped in its own request timeout so a
+// relay that's overloaded (hangs instead of erroring) doesn't stall the others. If your
+// network blocks all of them, the refresh fails gracefully and existing data is kept.
 const SQUAD_REFRESH_PROXIES = [
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  // codetabs: no API key, comfortably handles this ~2-3MB payload, forwards raw JSON.
+  {build: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, parse: res => res.json()},
+  {build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, parse: res => res.json()},
+  // allorigins' JSON-wrapped endpoint as a second chance on the same service.
+  {build: url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, parse: async res => JSON.parse((await res.json()).contents)},
+  // corsproxy.io now caps free/unauthenticated requests around 1MB and can reject
+  // this payload, but it's free to try last.
+  {build: url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`, parse: res => res.json()},
 ];
 const SQUAD_POS_SHORT = {1:"GKP", 2:"DEF", 3:"MID", 4:"FWD"};
 
+// A plain fetch with a hard timeout — some public CORS relays hang instead of
+// failing fast when they're overloaded or blocked, which used to stall refreshes.
+function fetchWithTimeout(url, opts, timeoutMs){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 10000);
+  return fetch(url, {...(opts || {}), signal: ctrl.signal}).finally(() => clearTimeout(timer));
+}
+
 async function fetchLiveBootstrapForSquads(){
   let lastErr;
-  for(const buildUrl of SQUAD_REFRESH_PROXIES){
+  for(const proxy of SQUAD_REFRESH_PROXIES){
     try{
-      const res = await fetch(buildUrl(SQUAD_FPL_URL), {cache:"no-store"});
+      const res = await fetchWithTimeout(proxy.build(SQUAD_FPL_URL), {cache:"no-store"}, 12000);
       if(!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
+      const data = await proxy.parse(res);
       if(data && Array.isArray(data.elements) && Array.isArray(data.teams)) return data;
       throw new Error("Unexpected payload shape");
     }catch(err){
@@ -3083,7 +3099,7 @@ async function refreshAllSquadPlanners(){
   }catch(err){
     console.error('Squad planner live refresh failed:', err);
     status.className = 'refresh-status err';
-    status.textContent = "Couldn't fetch live data \u2014 your network may be blocking the connection. All 3 squads still show their existing data.";
+    status.textContent = "Couldn't fetch live data \u2014 tried " + SQUAD_REFRESH_PROXIES.length + " public relays and none got through (your network, or all of them, may be blocking it right now). All 3 squads still show their existing data.";
   }finally{
     btn.disabled = false;
     btn.innerHTML = '&#8635; Refresh live data (all 3 squads)';
@@ -3433,9 +3449,13 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
      changes their login flow, and some proxies simply refuse POST requests.
      If it fails, Manual upload above is the reliable path. */
   const PTS_AUTO_PROXIES = [
-    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    // corsproxy.io generally forwards the original HTTP method, headers and
+    // body verbatim, which this two-step login flow needs (allorigins/codetabs
+    // mainly proxy simple GETs) — so it goes first here, opposite of the
+    // read-only bootstrap-static fetch above.
     url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
   const PTS_LOGIN_URL = 'https://members-v2.fantasyfootballscout.co.uk/auth/login';
   const PTS_RMT_URL = 'https://rate-my-team.fantasyfootballscout.co.uk/players/?team=0&position=0&maxval=0&minval=0&order=0&first=1&last=38';
@@ -3466,16 +3486,16 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
     for(const buildUrl of PTS_AUTO_PROXIES){
       try{
         // Step 1: attempt to sign in.
-        const loginRes = await fetch(buildUrl(PTS_LOGIN_URL), {
+        const loginRes = await fetchWithTimeout(buildUrl(PTS_LOGIN_URL), {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({email: user, username: user, password: pass}),
-        });
+        }, 12000);
         if(!loginRes.ok) throw new Error('Login request failed (HTTP ' + loginRes.status + ')');
 
         // Step 2: fetch the Rate My Team players page/table.
         setStatus(els.autoStatus, 'Login attempted \u2014 fetching players table\u2026');
-        const dataRes = await fetch(buildUrl(PTS_RMT_URL));
+        const dataRes = await fetchWithTimeout(buildUrl(PTS_RMT_URL), {}, 12000);
         if(!dataRes.ok) throw new Error('Players page request failed (HTTP ' + dataRes.status + ')');
         const text = await dataRes.text();
 
@@ -3503,7 +3523,7 @@ document.getElementById('refreshAllBtn').addEventListener('click', refreshAllSqu
 
     if(lastErr){
       console.error('Points projections: automated fetch failed', lastErr);
-      setStatus(els.autoStatus, "Automated fetch didn't work (FFS's login isn't a public API, so this is genuinely best-effort). Please use Manual upload above instead \u2014 it's 100% reliable.", 'err');
+      setStatus(els.autoStatus, "Automated fetch didn't work after trying " + PTS_AUTO_PROXIES.length + " relays (FFS's login isn't a public API, and most free CORS relays only forward simple GETs, not this login's POST body \u2014 so this is genuinely best-effort). Please use Manual upload above instead \u2014 it's 100% reliable.", 'err');
     }
     els.autoFetchBtn.disabled = false;
     els.autoFetchBtn.textContent = 'Fetch from FFS';

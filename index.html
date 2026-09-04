@@ -353,6 +353,20 @@
     box-shadow:inset 0 0 0 1px var(--amber);
   }
 
+  /* Past gameweeks (before the selected Current gameweek) — greyed out, still visible */
+  th.gw-col.gw-past{
+    opacity:.42;
+  }
+  td.fx.gw-past{
+    opacity:.4;
+  }
+  td.fx.gw-past .pill{
+    filter:grayscale(70%);
+  }
+  td.fx.gw-past.hover-col{
+    opacity:.65;
+  }
+
   /* Footer note */
   .footnote{
     max-width:1400px;margin:0 auto 60px;padding:0 20px;
@@ -452,7 +466,8 @@
     .sub{font-size:12px;}
   }
 
-  #plannerRoot1, #plannerRoot2, #plannerRoot3, #pointsProjections{
+  #plannerRoot1, #plannerRoot2, #plannerRoot3, #pointsProjections,
+  #fixtureRunWrap1, #fixtureRunWrap2, #fixtureRunWrap3{
     scroll-margin-top:64px;
   }
 
@@ -1081,9 +1096,9 @@
       <a href="#top" class="active">Home</a>
       <a href="players.html">Players</a>
       <span class="site-nav-sep"></span>
-      <a href="#plannerRoot1">Squad A</a>
-      <a href="#plannerRoot2">Squad B</a>
-      <a href="#plannerRoot3">Squad C</a>
+      <a href="#fixtureRunWrap1" data-squad-nav="1">Squad A</a>
+      <a href="#fixtureRunWrap2" data-squad-nav="2">Squad B</a>
+      <a href="#fixtureRunWrap3" data-squad-nav="3">Squad C</a>
       <a href="#pointsProjections">FPL Points projections</a>
     </div>
     <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Switch colour theme" aria-label="Switch colour theme">
@@ -1703,6 +1718,16 @@ document.querySelectorAll('th.gw-col').forEach(th => {
 function updateRun(){
  const start=+document.getElementById('currentGW').value-1;
  const cnt=+document.getElementById('gwCount').value;
+
+ // Grey out gameweek columns before the selected "Current gameweek" —
+ // they're in the past, so dim them but keep them visible for reference.
+ document.querySelectorAll('th.gw-col').forEach((th,i)=>{
+   th.classList.toggle('gw-past', i < start);
+ });
+ document.querySelectorAll('td.fx').forEach(td=>{
+   td.classList.toggle('gw-past', +td.dataset.col < start);
+ });
+
  const rows=[...document.querySelectorAll('#grid-body tr')];
  const vals=[];
  rows.forEach((tr,i)=>{
@@ -2943,6 +2968,11 @@ function createSquadPlanner(sfx){
       populateTeamFilter();
       populatePriceFilters();
       renderAll();
+    },
+    // Expands this squad (if minimised) so its players + fixture table is
+    // visible — used by the header's Squad A/B/C nav links.
+    showFixtures(){
+      if(minimised) setMinimised(false);
     }
   };
 }
@@ -2952,6 +2982,23 @@ const PLANNER_INSTANCES = [
   createSquadPlanner('2'),
   createSquadPlanner('3'),
 ];
+
+// Header "Squad A/B/C" nav — land straight on that squad's players +
+// fixture table (expanding it first if it's currently minimised) instead
+// of the top of the squad-selection panel.
+document.querySelectorAll('a[data-squad-nav]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const idx = +a.dataset.squadNav - 1;
+    const inst = PLANNER_INSTANCES[idx];
+    if(inst && typeof inst.showFixtures === 'function') inst.showFixtures();
+    const target = document.getElementById('fixtureRunWrap' + (idx + 1));
+    if(target){
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+      history.replaceState(null, '', '#fixtureRunWrap' + (idx + 1));
+    }
+  });
+});
 
 /* ---------- Live data refresh (shared across all 3 squad builders) ---------- */
 const SQUAD_FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";

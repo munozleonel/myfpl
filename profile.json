@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "savedAt": "2026-09-12T12:08:35.269Z",
-  "currentGW": 4,
+  "savedAt": "2026-10-13T08:17:45.926Z",
+  "currentGW": 7,
   "squads": {
     "1": {
       "squadIds": [
@@ -100,7 +100,7 @@
           445
         ]
       },
-      "startGW": "4",
+      "startGW": "7",
       "transfers": [],
       "activeChip": null
     },
@@ -216,7 +216,7 @@
           249
         ]
       },
-      "startGW": "4",
+      "startGW": "7",
       "transfers": [],
       "activeChip": {
         "type": "bench_boost",
@@ -341,7 +341,7 @@
           304
         ]
       },
-      "startGW": "4",
+      "startGW": "7",
       "transfers": [],
       "activeChip": {
         "type": "bench_boost",
